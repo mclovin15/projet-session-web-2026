@@ -27,6 +27,27 @@ def _get_db():
         g._database = Database()
     return g._database
 
+def _get_status_violation_color(status: str):
+    """Retourne une couleur CSS pour un statut de violation donné."""
+    status = status.lower()
+    if status == "fermé changement d'exploitant":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+    elif status == "ouvert":
+        return "bg-green-100 text-green-800 border-green-200"
+    elif status == "fermé":
+        return "bg-red-100 text-red-800 border-red-200"
+    else:
+        return "bg-gray-100 text-gray-800 border-gray-200"
+
+def _get_categorie_violation_icon(categorie: str):
+    """Retourne une icone pour une categorie de violation donné."""
+    categorie = categorie.lower()
+    if categorie == "restaurant service rapide":
+        return '<i class="fa-solid fa-burger"></i>'
+    elif categorie == "restaurant":
+        return '<i class="fa-solid fa-utensils"></i>'
+    else:
+        return '<i class="fa-solid fa-shop"></i>'
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -36,27 +57,28 @@ def close_connection(exception):
         db.disconnect()
 
 
-# @app.context_processor
-# def inject_auth_state():
-#     """Fonction utile pour le front-end"""
-#     return {
-#         "current_email": (
-#             _get_db().get_session_email(session.get("id"))
-#             if "id" in session
-#             else None
-#         ),
-#         "is_logged_in": _get_db().user_is_log_in(session.get("id")),
-#         "connected_user_id": (
-#             _get_db().get_user_id_from_email(
-#                 _get_db().get_session_email(session.get("id"))
-#             )
-#             if "id" in session
-#             else None
-#         ),
-#         "avatar": _get_db().get_avatar_by_userid(session.get("user_id")),
-#         "get_avatar_by_userid": _get_db().get_avatar_by_userid,
-#         "get_author_name_by_userid": _get_db().get_author_name_by_userid,
-#     }
+@app.context_processor
+def inject_auth_state():
+    """Fonction utile pour le front-end"""
+    return {
+        # "current_email": (
+        #     _get_db().get_session_email(session.get("id"))
+        #     if "id" in session
+        #     else None
+        # ),
+        # "is_logged_in": _get_db().user_is_log_in(session.get("id")),
+        # "connected_user_id": (
+        #     _get_db().get_user_id_from_email(
+        #         _get_db().get_session_email(session.get("id"))
+        #     )
+        #     if "id" in session
+        #     else None
+        # ),
+        # "avatar": _get_db().get_avatar_by_userid(session.get("user_id")),
+        # "get_avatar_by_userid": _get_db().get_avatar_by_userid,
+        "get_categorie_violation_icon": _get_categorie_violation_icon,
+        "get_status_violation_color": _get_status_violation_color,
+    }
 
 
 @app.route("/", methods=["GET"])

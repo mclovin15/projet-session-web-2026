@@ -36,14 +36,14 @@
 
 ### A2 - Application Flask et recherche - 10 XP
 
-- [ ] Construire une application Flask pour acceder aux donnees
-- [ ] Ajouter une page d'accueil avec un outil de recherche
-- [ ] Permettre la recherche par nom d'etablissement
-- [ ] Permettre la recherche par proprietaire
-- [ ] Permettre la recherche par rue
-- [ ] Afficher les resultats sur une nouvelle page
-- [ ] Afficher toutes les donnees disponibles pour chaque contravention
-- [ ] Permettre qu'un restaurant apparaisse plusieurs fois s'il a plusieurs sanctions
+- [x] Construire une application Flask pour acceder aux donnees
+- [x] Ajouter une page d'accueil avec un outil de recherche
+- [x] Permettre la recherche par nom d'etablissement
+- [x] Permettre la recherche par proprietaire
+- [x] Permettre la recherche par rue
+- [x] Afficher les resultats sur une nouvelle page
+- [x] Afficher toutes les donnees disponibles pour chaque contravention
+- [x] Permettre qu'un restaurant apparaisse plusieurs fois s'il a plusieurs sanctions
 
 ### A3 - Synchronisation quotidienne - 10 XP
 

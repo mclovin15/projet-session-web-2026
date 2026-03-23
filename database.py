@@ -65,4 +65,4 @@ class Database:
             """,
             (search_input, search_input, search_input),
         )
-        return cursor.fetchall()
+        return [Violation.from_db_row(row) for row in cursor.fetchall()]
