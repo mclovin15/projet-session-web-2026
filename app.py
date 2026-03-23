@@ -11,7 +11,11 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
-from .database import Database
+
+try:
+    from .database import Database
+except ImportError:
+    from database import Database
 
 app = Flask(__name__, static_url_path="", static_folder="static")
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB upload limit
@@ -57,7 +61,15 @@ def close_connection(exception):
 
 @app.route("/", methods=["GET"])
 def index():
-    """Affiche ---"""
+    """Affiche page accueil avec formulaire de recherche."""
+    query = request.args.get("query", "").strip()
+    if query:
+        violations = _get_db().search_violations(query)
+        return render_template(
+            "search_results.html",
+            violations=violations,
+            query=query,
+        )
     return render_template("index.html")
 
 app.secret_key = "GHgQgYj2Yl1HD/WvFawstsVdlNJsNYSa"

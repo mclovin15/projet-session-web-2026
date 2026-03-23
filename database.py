@@ -4,7 +4,11 @@
 import datetime
 import sqlite3
 import uuid
-from violation import Violation
+
+try:
+    from .violation import Violation
+except ImportError:
+    from violation import Violation
 
 
 class Database:
@@ -49,3 +53,16 @@ class Database:
             "SELECT 1 FROM violations WHERE id_poursuite = ?", (id_poursuite,)
         )
         return cursor.fetchone() is not None
+    
+    def search_violations(self, query: str):
+        """Recherche des violations par etablissement, proprietaire ou adresse"""
+        connection = self.get_connection()
+        search_input = f"%{query}%"
+        cursor = connection.execute(
+            """
+            SELECT * FROM violations
+            WHERE etablissement LIKE ? OR proprietaire LIKE ? OR adresse LIKE ?
+            """,
+            (search_input, search_input, search_input),
+        )
+        return cursor.fetchall()
