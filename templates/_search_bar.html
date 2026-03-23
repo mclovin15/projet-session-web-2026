@@ -13,11 +13,11 @@
          </span>
          <input
             id="{{ search_input_id | default('global-search') }}"
-            name="q"
+            name="query"
             type="search"
-            value="{{ search_value | default(request.args.get('q', '')) }}"
+            value="{{ search_value | default(request.args.get('query', '')) }}"
             placeholder="{{ search_placeholder | default('Rechercher un etablissement, un proprietaire ou une rue') }}"
-            class="w-full rounded-full border border-slate-200 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-100">
+            class="w-full rounded-full border border-slate-200 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100">
          <button
             id="{{ clear_button_id | default('clear-global-search') }}"
             type="button"

@@ -1,0 +1,105 @@
+<article class="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:border-slate-300 hover:shadow-soft">
+   <div class="flex flex-col gap-4 xl:grid xl:grid-cols-[minmax(0,2.3fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,1.1fr)] xl:items-start">
+      <div class="min-w-0">
+         <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+               {{ violation.categorie }}
+            </span>
+            <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+               #{{ violation.id_poursuite }}
+            </span>
+            <span class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+               {{ violation.statut }}
+            </span>
+         </div>
+
+         <h2 class="mt-3 truncate text-lg font-black tracking-tight text-slate-900" title="{{ violation.etablissement }}">
+            {{ violation.etablissement }}
+         </h2>
+
+         <p class="mt-1 truncate text-sm font-medium text-slate-500" title="{{ violation.proprietaire }}">
+            {{ violation.proprietaire }}
+         </p>
+
+         <p class="mt-2 truncate text-sm text-slate-600" title="{{ violation.adresse }}">
+            {{ violation.adresse }}
+         </p>
+
+         <p class="mt-3 text-sm leading-6 text-slate-600">
+            {{ violation.descr[:190] }}{% if violation.descr|length > 190 %}...{% endif %}
+         </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-2">
+         <div class="rounded-xl bg-slate-50 px-3 py-3">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+               Ville
+            </p>
+            <p class="mt-1 truncate text-sm font-semibold text-slate-900" title="{{ violation.ville }}">
+               {{ violation.ville }}
+            </p>
+         </div>
+
+         <div class="rounded-xl bg-slate-50 px-3 py-3">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+               Business
+            </p>
+            <p class="mt-1 text-sm font-semibold text-slate-900">
+               {{ violation.business_id }}
+            </p>
+         </div>
+
+         <div class="rounded-xl bg-slate-50 px-3 py-3">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+               Violation
+            </p>
+            <p class="mt-1 text-sm font-semibold text-slate-900">
+               {{ violation.date_violation }}
+            </p>
+         </div>
+
+         <div class="rounded-xl bg-slate-50 px-3 py-3">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+               Jugement
+            </p>
+            <p class="mt-1 text-sm font-semibold text-slate-900">
+               {{ violation.date_jugement }}
+            </p>
+         </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 xl:grid-cols-1">
+         <div class="rounded-xl bg-slate-50 px-3 py-3">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+               Date statut
+            </p>
+            <p class="mt-1 text-sm font-semibold text-slate-900">
+               {{ violation.date_statut }}
+            </p>
+         </div>
+
+         <div class="rounded-xl bg-slate-900 px-3 py-3 text-white">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+               Montant
+            </p>
+            <p class="mt-1 text-lg font-black">
+               {{ "%.2f"|format(violation.montant) }} $
+            </p>
+         </div>
+      </div>
+
+      <div class="flex h-full flex-col justify-between rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3">
+         <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+               Resume
+            </p>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+               {{ violation.categorie }} a {{ violation.ville }}
+            </p>
+         </div>
+         <div class="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+            Poursuite {{ violation.id_poursuite }}
+         </div>
+      </div>
+   </div>
+</article>
