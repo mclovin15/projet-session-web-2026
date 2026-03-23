@@ -1,0 +1,67 @@
+<form action="{{ search_action | default('/') }}" method="get" class="w-full">
+   <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+      <label for="{{ search_input_id | default('global-search') }}" class="sr-only">
+         Rechercher une contravention
+      </label>
+      <div class="relative min-w-0 flex-1">
+         <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+               <path fill-rule="evenodd"
+                  d="M9 3.5a5.5 5.5 0 1 0 3.473 9.765l3.63 3.63a.75.75 0 1 0 1.06-1.06l-3.63-3.63A5.5 5.5 0 0 0 9 3.5ZM5 9a4 4 0 1 1 8 0a4 4 0 0 1-8 0Z"
+                  clip-rule="evenodd" />
+            </svg>
+         </span>
+         <input
+            id="{{ search_input_id | default('global-search') }}"
+            name="q"
+            type="search"
+            value="{{ search_value | default(request.args.get('q', '')) }}"
+            placeholder="{{ search_placeholder | default('Rechercher un etablissement, un proprietaire ou une rue') }}"
+            class="w-full rounded-full border border-slate-200 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-100">
+         <button
+            id="{{ clear_button_id | default('clear-global-search') }}"
+            type="button"
+            aria-label="Vider la recherche"
+            class="absolute inset-y-0 right-3 my-auto hidden h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+               <path
+                  d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+            </svg>
+         </button>
+      </div>
+      <button
+         type="submit"
+         class="inline-flex shrink-0 items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200">
+         Rechercher
+      </button>
+   </div>
+</form>
+
+<script>
+   (() => {
+      const searchInput = document.getElementById(
+         "{{ search_input_id | default('global-search') }}"
+      );
+      const clearSearchButton = document.getElementById(
+         "{{ clear_button_id | default('clear-global-search') }}"
+      );
+
+      if (!searchInput || !clearSearchButton) {
+         return;
+      }
+
+      const toggleClearButton = () => {
+         clearSearchButton.classList.toggle("hidden", searchInput.value.length === 0);
+         clearSearchButton.classList.toggle("flex", searchInput.value.length > 0);
+      };
+
+      searchInput.addEventListener("input", toggleClearButton);
+      clearSearchButton.addEventListener("click", () => {
+         searchInput.value = "";
+         toggleClearButton();
+         searchInput.focus();
+      });
+
+      toggleClearButton();
+   })();
+</script>

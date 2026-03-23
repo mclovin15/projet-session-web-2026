@@ -5,79 +5,76 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Projet Session- Yoan</title>
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
-      integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTShA=" crossorigin="anonymous" />
+   <script src="https://cdn.tailwindcss.com"></script>
+   <script>
+      tailwind.config = {
+         theme: {
+            extend: {
+               colors: {
+                  ink: "#0f172a",
+                  mist: "#eef2ff",
+                  accent: "#d97706",
+                  pine: "#14532d"
+               },
+               boxShadow: {
+                  soft: "0 18px 45px rgba(15, 23, 42, 0.12)"
+               }
+            }
+         }
+      };
+   </script>
    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 
-<body>
-   <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container">
-         <a class="navbar-brand" href="/">Projet Session- Yoan</a>
-         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-            aria-controls="mainNavbar" aria-expanded="false" aria-label="Basculer la navigation">
-            <span class="navbar-toggler-icon"></span>
-         </button>
-         <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-               <li class="nav-item">
-                  <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="/">Accueil</a>
-               </li>
-               {% if is_logged_in %}
-               <li class="nav-item">
-                  <a class="nav-link {% if request.path == url_for('display_user_list') %}active{% endif %}"
-                     href="/utilisateurs">Gérer les profils</a>
-               </li>
-               <li class="nav-item">
+<body class="min-h-screen bg-slate-100 text-ink">
+   <div class="absolute inset-x-0 top-0 -z-10 h-72 bg-gradient-to-br from-amber-100 via-white to-emerald-100"></div>
 
-                  <a class="nav-link {% if request.path == url_for('login_page') %}active{% endif %}"
-                     href="/admin">Articles</a>
-               </li>
-               {% endif %}
-            </ul>
-
-            <div class="d-flex align-items-center gap-2">
-               {% if is_logged_in %}
-               <a class="btn  btn-sm d-flex align-items-center" href="/utilisateur/{{connected_user_id}}"
-                  aria-label="Profil">
-                  {% if avatar %}
-                  <img src="{{ avatar }}" alt="Avatar" class="rounded-circle"
-                     style="width: 32px; height: 32px; object-fit: cover;">
-                  {% else %}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-person-circle" viewBox="0 0 16 16" aria-hidden="true">
-                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                     <path fill-rule="evenodd"
-                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
-                  </svg>
-                  {% endif %}
-                  <a class="btn btn-outline-light btn-sm" href="/logout">Se déconnecter</a>
-               </a>
-               {% else %}
-               <a class="btn btn-outline-light btn-sm" href="/admin">Se connecter</a>
-               {% endif %}
+   <nav class="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center gap-6 px-4 py-4 sm:px-6 lg:px-8">
+         <a href="/" class="shrink-0">
+            <div class="flex items-center gap-3">
+               <div
+                  class="flex h-11 w-11 items-center justify-center rounded-2xl bg-ink text-sm font-black uppercase tracking-[0.25em] text-white shadow-soft">
+                  YD
+               </div>
+               <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.35em] text-amber-700">
+                     INF5190
+                  </p>
+                  <p class="text-lg font-bold text-slate-900">Projet Session</p>
+               </div>
             </div>
+         </a>
+
+         <div class="ml-auto hidden items-center gap-2 md:flex">
+            <a href="/"
+               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+               Accueil
+            </a>
+            <a href="/recherche"
+               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+               Recherche
+            </a>
+            <a href="/contrevenants"
+               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+               Contrevenants
+            </a>
+            <a href="/plaintes"
+               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+               Plaintes
+            </a>
+            <a href="/profil"
+               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+               Profil
+            </a>
          </div>
       </div>
-   </nav> -->
+   </nav>
 
-   <main class="container py-4">
-      <!-- {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      <div class="alert alert-info">{{ messages[0] }}</div>
-      {% endif %}
-      {% endwith %} -->
-
-
+   <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {% block content %}{% endblock %}
    </main>
-
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-      crossorigin="anonymous"></script>
 </body>
 
 </html>
