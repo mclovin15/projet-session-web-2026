@@ -46,6 +46,8 @@ def _get_categorie_violation_icon(categorie: str):
         return '<i class="fa-solid fa-burger"></i>'
     elif categorie == "restaurant":
         return '<i class="fa-solid fa-utensils"></i>'
+    elif categorie == "brasserie":
+        return '<i class="fa-solid fa-beer-mug-empty"></i>'
     else:
         return '<i class="fa-solid fa-shop"></i>'
 
