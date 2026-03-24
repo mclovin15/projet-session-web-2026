@@ -3,6 +3,8 @@
 import base64
 import hashlib
 import uuid
+import atexit
+import os
 
 from flask import Flask
 from flask import flash
@@ -11,6 +13,13 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
+from apscheduler.schedulers.background import BackgroundScheduler
+
+try:
+    from .update_violations import update_violations
+except ImportError:
+    from update_violations import update_violations
+
 
 try:
     from .database import Database
@@ -20,12 +29,24 @@ except ImportError:
 app = Flask(__name__, static_url_path="", static_folder="static")
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB upload limit
 
+scheduler = BackgroundScheduler(timezone="America/Toronto")
+
 def _get_db():
     """Pool connexion à bd."""
     db = getattr(g, "_database", None)
     if db is None:
         g._database = Database()
     return g._database
+
+def sync_violations_job():
+    with app.app_context():
+        app.logger.info("Debut de la synchronisation")
+        result = update_violations()
+        app.logger.info(
+            "Synchronisation terminee: %s insertions, %s mises a jour",
+            result["inserted"],
+            result["updated"],
+        )
 
 def _get_status_violation_color(status: str):
     """Retourne une couleur CSS pour un statut de violation donné."""
@@ -95,5 +116,29 @@ def index():
             query=query,
         )
     return render_template("index.html")
+
+scheduler.add_job(
+    func=sync_violations_job,
+    trigger="cron",
+    hour=0,
+    minute=0,
+    id="daily_violation_sync",
+    replace_existing=True,
+    misfire_grace_time=3600, # autoriser une execution jusqu'à 1h après l'heure
+)
+# TODO: enlever 
+# scheduler.add_job(
+#     func=sync_violations_job,
+#     trigger="interval",
+#     minutes=1,
+#     id="daily_violation_sync",
+#     replace_existing=True,
+# )
+
+# TODO: revoir à la remise si on l'enlève
+# Evite de lancer deux schedulers avec le reloader de Flask en debug
+if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
+    scheduler.start()
+    atexit.register(lambda: scheduler.shutdown())
 
 app.secret_key = "GHgQgYj2Yl1HD/WvFawstsVdlNJsNYSa"

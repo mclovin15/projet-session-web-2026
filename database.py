@@ -45,6 +45,62 @@ class Database:
             violation.to_db_tuple(),
         )
         connection.commit()
+        
+    def update_violation(self, violation: Violation):
+        """Met à jour une violation existante"""
+
+        connection = self.get_connection()
+        connection.execute(
+            """
+            UPDATE violations SET
+                business_id = ?,
+                date_violation = ?,
+                descr = ?,
+                adresse = ?,
+                date_jugement = ?,
+                etablissement = ?,
+                montant = ?,
+                proprietaire = ?,
+                ville = ?,
+                statut = ?,
+                date_statut = ?,
+                categorie = ?
+            WHERE id_poursuite = ?
+            """,
+            violation.to_update_tuple(),
+        )
+        connection.commit()
+    
+    def is_violation_updated(self, id_poursuite: int, csv_row: dict):
+        """Verifie si une ligne CSV differe de la ligne en base."""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            "SELECT * FROM violations WHERE id_poursuite = ?", (id_poursuite,)
+        )
+        db_row = cursor.fetchone()
+        if db_row is None:
+            return False
+
+        csv_to_db_fields = {
+            "business_id": "business_id",
+            "date": "date_violation",
+            "description": "descr",
+            "adresse": "adresse",
+            "date_jugement": "date_jugement",
+            "etablissement": "etablissement",
+            "montant": "montant",
+            "proprietaire": "proprietaire",
+            "ville": "ville",
+            "statut": "statut",
+            "date_statut": "date_statut",
+            "categorie": "categorie",
+        }
+
+        for csv_field, db_field in csv_to_db_fields.items():
+            if str(db_row[db_field]) != str(csv_row[csv_field]):
+                return True
+
+        return False
     
     def violation_exists(self, id_poursuite: int):
         """Verifie si la violation existe deja"""

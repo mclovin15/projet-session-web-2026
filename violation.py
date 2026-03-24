@@ -82,6 +82,24 @@ class Violation:
             self.categorie,
         )
 
+    def to_update_tuple(self):
+        """Retourne les valeurs dans l'ordre attendu par la requete UPDATE."""
+        return (
+            self.business_id,
+            self.date_violation,
+            self.descr,
+            self.adresse,
+            self.date_jugement,
+            self.etablissement,
+            self.montant,
+            self.proprietaire,
+            self.ville,
+            self.statut,
+            self.date_statut,
+            self.categorie,
+            self.id_poursuite,
+        )
+
     @property
     def formatted_date_violation(self) -> str:
         """Retourne la date de violation au format YYYY-MM-DD."""
