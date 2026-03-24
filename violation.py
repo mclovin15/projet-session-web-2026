@@ -99,6 +99,24 @@ class Violation:
             self.categorie,
             self.id_poursuite,
         )
+        
+    def to_dict(self):
+        return {
+            "id_poursuite": self.id_poursuite,
+            "business_id": self.business_id,
+            "date_violation": self.formatted_date_violation,
+            "description": self.descr,
+            "adresse": self.adresse,
+            "date_jugement": self.formatted_date_jugement,
+            "etablissement": self.etablissement,
+            "montant": self.montant,
+            "proprietaire": self.proprietaire,
+            "ville": self.ville,
+            "statut": self.statut,
+            "date_statut": self.formatted_date_statut,
+            "categorie": self.categorie,
+        }
+
 
     @property
     def formatted_date_violation(self) -> str:

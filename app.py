@@ -14,6 +14,8 @@ from flask import render_template
 from flask import request
 from flask import session
 from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+from flask import jsonify
 
 try:
     from .update_violations import update_violations
@@ -84,21 +86,6 @@ def close_connection(exception):
 def inject_auth_state():
     """Fonction utile pour le front-end"""
     return {
-        # "current_email": (
-        #     _get_db().get_session_email(session.get("id"))
-        #     if "id" in session
-        #     else None
-        # ),
-        # "is_logged_in": _get_db().user_is_log_in(session.get("id")),
-        # "connected_user_id": (
-        #     _get_db().get_user_id_from_email(
-        #         _get_db().get_session_email(session.get("id"))
-        #     )
-        #     if "id" in session
-        #     else None
-        # ),
-        # "avatar": _get_db().get_avatar_by_userid(session.get("user_id")),
-        # "get_avatar_by_userid": _get_db().get_avatar_by_userid,
         "get_categorie_violation_icon": _get_categorie_violation_icon,
         "get_status_violation_color": _get_status_violation_color,
     }
@@ -116,6 +103,58 @@ def index():
             query=query,
         )
     return render_template("index.html")
+
+def is_iso_extended_date(date_str: str) -> bool:
+    """ Permet savoir si format est YYYY-MM-DD """
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
+def iso_date_to_basic(date_str: str) -> str:
+    """Convertit YYYY-MM-DD en YYYYMMDD."""
+    return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
+
+@app.route("/contrevenants", methods=["GET"])
+def contrevenants():
+    """API retourne en JSON les contrenvations entre les dates données."""
+    date_du = request.args.get("du")
+    date_au = request.args.get("au")
+    
+    if not date_du or not date_au:
+        return jsonify({
+            "error": "Les parametres 'du' et 'au' sont obligatoires."
+        }), 400    
+        
+    try: 
+        # on check si on recoit format YYYY-MM-DD,si oui on convertit
+        if(is_iso_extended_date(date_au)):
+            date_au = iso_date_to_basic(date_au)
+        else:
+            raise ValueError("Date au invalide")
+            
+        if(is_iso_extended_date(date_du)):
+            date_du = iso_date_to_basic(date_du)
+        else:
+            raise ValueError("Date du  invalide") 
+        
+    except ValueError:
+        return jsonify({
+            "error": "Les dates doivent etre au format ISO 8601 YYYY-MM-DD."
+        }), 400   
+        
+    if date_du > date_au:
+        return jsonify({
+            "error": "La date 'du' doit etre anterieure ou egale a la date 'au'."
+        }), 400
+
+    violations_in_range = _get_db().search_violations_by_date_range(date_du,date_au)
+    
+    return jsonify([violation.to_dict() for violation in violations_in_range]), 200
+
+
+
 
 scheduler.add_job(
     func=sync_violations_job,

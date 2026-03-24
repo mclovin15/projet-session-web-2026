@@ -122,3 +122,16 @@ class Database:
             (search_input, search_input, search_input),
         )
         return [Violation.from_db_row(row) for row in cursor.fetchall()]
+    
+    
+    def search_violations_by_date_range(self, from_date, to_date):
+        """Recherche des violations avec un range donnée"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            """
+            SELECT * FROM violations
+            WHERE date_violation BETWEEN ? AND ?
+            """,
+            (from_date, to_date),
+        )
+        return [Violation.from_db_row(row) for row in cursor.fetchall()]
