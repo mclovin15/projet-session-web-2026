@@ -55,6 +55,6 @@ def update_violations():
 
 
 if __name__ == "__main__":
-    result = import_and_update_violations()
+    result = update_violations()
     print(f"Nombre de violations inserees: {result['inserted']}")
     print(f"Nombre de violations mises a jour: {result['updated']}")

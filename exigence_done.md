@@ -47,10 +47,10 @@
 
 ### A3 - Synchronisation quotidienne - 10 XP
 
-- [ ] Mettre en place un `BackgroundScheduler` dans l'application Flask
-- [ ] Extraire les donnees de la ville de Montreal chaque jour a minuit
-- [ ] Mettre a jour les donnees de la base de donnees
-- [ ] Synchroniser quotidiennement les donnees locales avec celles de la ville
+- [x] Mettre en place un `BackgroundScheduler` dans l'application Flask
+- [x] Extraire les donnees de la ville de Montreal chaque jour a minuit
+- [x] Mettre a jour les donnees de la base de donnees
+- [x] Synchroniser quotidiennement les donnees locales avec celles de la ville
 
 ### A4 - Service REST par plage de dates - 10 XP
 
