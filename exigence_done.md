@@ -54,11 +54,11 @@
 
 ### A4 - Service REST par plage de dates - 10 XP
 
-- [ ] Offrir un service REST pour obtenir les contraventions entre deux dates
-- [ ] Recevoir les dates via parametres
-- [ ] Utiliser le format ISO 8601 pour les dates
+- [x] Offrir un service REST pour obtenir les contraventions entre deux dates
+- [x] Recevoir les dates via parametres
+- [x] Utiliser le format ISO 8601 pour les dates
 - [ ] Retourner les donnees en format JSON
-- [ ] Implementer la route du type `GET /contrevenants?du=YYYY-MM-DD&au=YYYY-MM-DD`
+- [x] Implementer la route du type `GET /contrevenants?du=YYYY-MM-DD&au=YYYY-MM-DD`
 - [ ] Rendre disponible une route `/doc`
 - [ ] Afficher sur `/doc` la representation HTML de la documentation RAML
 

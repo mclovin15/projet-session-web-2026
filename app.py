@@ -13,6 +13,7 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
+from flask import url_for
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from flask import jsonify
@@ -153,6 +154,9 @@ def contrevenants():
     
     return jsonify([violation.to_dict() for violation in violations_in_range]), 200
 
+@app.route("/doc", methods=["GET"])
+def doc():
+    return redirect(url_for("static", filename="docs/contrevenants.html"))
 
 
 

@@ -1,0 +1,52 @@
+#%RAML 1.0
+title: API Contrevenants
+version: v1
+baseUri: http://127.0.0.1:5000
+mediaType: application/json
+
+documentation:
+  - title: API
+    content: |
+      Service REST permettant d'obtenir la liste des contraventions
+      entre deux dates au format ISO 8601.
+
+types:
+  Violation:
+    type: object
+    properties:
+      id_poursuite: integer
+      business_id: integer
+      date_violation: string
+      description: string
+      adresse: string
+      date_jugement: string
+      etablissement: string
+      montant: number
+      proprietaire: string
+      ville: string
+      statut: string
+      date_statut: string
+      categorie: string
+
+/contrevenants:
+  get:
+    description: Retourne la liste des contraventions entre deux dates.
+    queryParameters:
+      du:
+        type: date-only
+        required: true
+        example: 2022-05-08
+      au:
+        type: date-only
+        required: true
+        example: 2024-05-15
+    responses:
+      200:
+        body:
+          application/json:
+            type: Violation[]
+      400:
+        body:
+          application/json:
+            example:
+              { "error": "Les dates doivent etre au format ISO 8601 YYYY-MM-DD." }
