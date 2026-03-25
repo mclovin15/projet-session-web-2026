@@ -123,6 +123,15 @@ class Database:
         )
         return [Violation.from_db_row(row) for row in cursor.fetchall()]
     
+    def return_all_etablissements(self):
+        """Retourne tous les établissements"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            """
+            select DISTINCT etablissement,adresse,business_id from violations ORDER by etablissement;
+            """
+        )
+        return cursor.fetchall()
     
     def search_violations_by_date_range(self, from_date, to_date):
         """Recherche des violations avec un range donnée"""

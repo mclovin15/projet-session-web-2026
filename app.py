@@ -106,6 +106,10 @@ def index():
             query=query,
             mode=mode,
         )
+    elif mode == "3":
+        liste_etablissement = _get_db().return_all_etablissements()
+        return render_template("index.html", mode=mode,liste_etablissement=liste_etablissement)
+        
     return render_template("index.html", mode=mode)
 
 def is_iso_extended_date(date_str: str) -> bool:
