@@ -1,4 +1,7 @@
 <form action="{{ search_action | default('/') }}" method="get" class="w-full">
+   {% if search_mode is defined %}
+   <input type="hidden" name="mode" value="{{ search_mode }}">
+   {% endif %}
    <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
       <label for="{{ search_input_id | default('global-search') }}" class="sr-only">
          Rechercher une contravention

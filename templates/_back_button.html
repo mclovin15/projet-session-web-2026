@@ -1,0 +1,9 @@
+<div>
+    <button type="button"
+        class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900">
+        <a href="{{ request.referrer or url_for('index') }}">
+            <i class="fa-solid fa-arrow-left text-xs"></i>
+            Retour
+        </a>
+    </button>
+</div>

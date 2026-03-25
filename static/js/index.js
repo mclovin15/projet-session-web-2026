@@ -2,14 +2,21 @@ $(document).ready(function () {
   $("#search-date-tab").hide();
   $("#date-search-form").submit(function (event) {
     event.preventDefault();
-    $.get(
-      "/contrevenants?du=" +
-        $("#from_date").val() +
-        "&au=" +
-        $("#to_date").val(),
-      function (data, status) {
+
+    $("#date-search-error").text("");
+    $("#contravention-table-body").empty();
+    $("#search-date-tab").hide();
+
+    $.ajax({
+      url: "/contrevenants",
+      method: "GET",
+      data: {
+        du: $("#from_date").val(),
+        au: $("#to_date").val(),
+      },
+      success: function (data, status) {
         let listeContravention = [];
-        console.log(status);
+
         data.forEach((contra) => {
           const element = listeContravention.find(
             (item) => item.business_id === contra.business_id,
@@ -24,8 +31,10 @@ $(document).ready(function () {
             });
           }
         });
+
         const $tbody = $("#contravention-table-body");
         $tbody.empty();
+
         listeContravention.forEach((contra) => {
           $tbody.append(`
                 <tr class="align-top text-sm text-slate-700 transition hover:bg-slate-50/80">
@@ -38,7 +47,22 @@ $(document).ready(function () {
                 </tr>
            `);
         });
+
+        if (listeContravention.length === 0) {
+          $("#date-search-error").text("Aucune contravention trouvee.");
+          return;
+        }
+
+        $("#search-date-tab").show();
       },
-    );
+      error: function (xhr) {
+        const errorMessage =
+          xhr.responseJSON && xhr.responseJSON.error
+            ? xhr.responseJSON.error
+            : "Une erreur est survenue lors de la requete.";
+
+        $("#date-search-error").text(errorMessage);
+      },
+    });
   });
 });

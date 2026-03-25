@@ -96,14 +96,17 @@ def inject_auth_state():
 def index():
     """Affiche page accueil avec formulaire de recherche."""
     query = request.args.get("query", "").strip()
+    mode = request.args.get("mode", "1")
+
     if query:
         violations = _get_db().search_violations(query)
         return render_template(
             "search_results.html",
             violations=violations,
             query=query,
+            mode=mode,
         )
-    return render_template("index.html")
+    return render_template("index.html", mode=mode)
 
 def is_iso_extended_date(date_str: str) -> bool:
     """ Permet savoir si format est YYYY-MM-DD """
