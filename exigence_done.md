@@ -57,27 +57,27 @@
 - [x] Offrir un service REST pour obtenir les contraventions entre deux dates
 - [x] Recevoir les dates via parametres
 - [x] Utiliser le format ISO 8601 pour les dates
-- [ ] Retourner les donnees en format JSON
+- [x] Retourner les donnees en format JSON
 - [x] Implementer la route du type `GET /contrevenants?du=YYYY-MM-DD&au=YYYY-MM-DD`
-- [ ] Rendre disponible une route `/doc`
-- [ ] Afficher sur `/doc` la representation HTML de la documentation RAML
+- [x] Rendre disponible une route `/doc`
+- [x] Afficher sur `/doc` la representation HTML de la documentation RAML
 
 ### A5 - Recherche Ajax par dates - 10 XP
 
-- [ ] Ajouter un formulaire de recherche rapide sur la page d'accueil
-- [ ] Permettre la saisie de deux dates
-- [ ] Envoyer une requete Ajax vers la route de A4
-- [ ] Afficher les resultats dans un tableau apres la reponse Ajax
-- [ ] Afficher une colonne avec le nom de l'etablissement
-- [ ] Afficher une colonne avec le nombre de contraventions durant la periode
+- [x] Ajouter un formulaire de recherche rapide sur la page d'accueil
+- [x] Permettre la saisie de deux dates
+- [x] Envoyer une requete Ajax vers la route de A4
+- [x] Afficher les resultats dans un tableau apres la reponse Ajax
+- [x] Afficher une colonne avec le nom de l'etablissement
+- [x] Afficher une colonne avec le nombre de contraventions durant la periode
 
 ### A6 - Recherche Ajax par restaurant - 10 XP
 
 - [ ] Ajouter un mode de recherche par nom du restaurant dans l'application de A5
-- [ ] Predeterminer la liste de tous les contrevenants dans une liste deroulante
-- [ ] Permettre a l'utilisateur de choisir un restaurant dans la liste
-- [ ] Envoyer une requete Ajax vers un service REST dedie
-- [ ] Afficher les differentes infractions du restaurant apres la reponse Ajax
+- [x] Predeterminer la liste de tous les contrevenants dans une liste deroulante
+- [x] Permettre a l'utilisateur de choisir un restaurant dans la liste
+- [x] Envoyer une requete Ajax vers un service REST dedie
+- [x] Afficher les differentes infractions du restaurant apres la reponse Ajax
 
 ### B1 - Detection des nouvelles contraventions par courriel - 5 XP
 
