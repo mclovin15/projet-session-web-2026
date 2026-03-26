@@ -100,10 +100,10 @@
 
 ### C2 - Meme service en XML - 5 XP
 
-- [ ] Offrir exactement les memes donnees que C1 en format XML
-- [ ] Utiliser l'encodage UTF-8
-- [ ] Documenter le service avec RAML
-- [ ] Rendre la documentation disponible sur `/doc`
+- [x] Offrir exactement les memes donnees que C1 en format XML
+- [x] Utiliser l'encodage UTF-8
+- [x] Documenter le service avec RAML
+- [x] Rendre la documentation disponible sur `/doc`
 
 ### C3 - Meme service en CSV - 5 XP
 

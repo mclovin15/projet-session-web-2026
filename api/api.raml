@@ -99,3 +99,21 @@ types:
         body:
           application/json:
             type: EtablissementViolationCount[]
+      
+/violations_par_etablissement.xml:
+  get:
+    description: Retourne la liste des etablissements avec leur nombre de violations en format XML.
+    responses:
+      200:
+        body:
+          application/xml:
+            example: |
+              <?xml version="1.0" encoding="utf-8"?>
+              <etablissements>
+                <etablissement>
+                  <business_id>123</business_id>
+                  <nom>Restaurant ABC</nom>
+                  <adresse>123 Rue Test</adresse>
+                  <nombre_violations>4</nombre_violations>
+                </etablissement>
+              </etablissements>

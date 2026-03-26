@@ -5,8 +5,9 @@ import hashlib
 import uuid
 import atexit
 import os
+import xml.etree.ElementTree as ET
 
-from flask import Flask,flash, g, redirect,render_template,request,session,url_for,jsonify
+from flask import Flask,flash, g, redirect,render_template,request,session,url_for,jsonify, Response
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from flask_json_schema import JsonSchema, JsonValidationError
@@ -190,6 +191,26 @@ def doc():
 def violations_par_etablissement():
     violations = _get_db().return_all_etablissement_with_nb_violations()
     return jsonify(violations),200
+
+@app.route("/violations_par_etablissement.xml", methods=["GET"])
+def violations_par_etablissement_xml():
+    violations = _get_db().return_all_etablissement_with_nb_violations()
+
+    root = ET.Element("etablissements")
+
+    for item in violations:
+        etab = ET.SubElement(root, "etablissement")
+        ET.SubElement(etab, "business_id").text = str(item["business_id"])
+        ET.SubElement(etab, "nom").text = item["etablissement"]
+        ET.SubElement(etab, "adresse").text = item["adresse"]
+        ET.SubElement(etab, "nombre_violations").text = str(item["nombre_violations"])
+
+    xml_bytes = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+
+    return Response(
+        xml_bytes,
+        mimetype="application/xml; charset=utf-8",
+    )
 
 scheduler.add_job(
     func=sync_violations_job,
