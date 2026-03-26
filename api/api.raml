@@ -1,5 +1,5 @@
 #%RAML 1.0
-title: API Contrevenants
+title: API Contraventions
 version: v1
 baseUri: http://127.0.0.1:5000
 mediaType: application/json
@@ -8,7 +8,7 @@ documentation:
   - title: API
     content: |
       Service REST permettant d'obtenir la liste des contraventions
-      entre deux dates au format ISO 8601.
+      entre deux dates et les details d'un établissement.
 
 types:
   Violation:
@@ -27,6 +27,19 @@ types:
       statut: string
       date_statut: string
       categorie: string
+
+  EtablissementDetails:
+    type: object
+    properties:
+      nom: string
+      business_id: integer
+      adresse: string
+      nombre_violations: integer
+      violations: Violation[]
+      proprietaire: string | nil
+      ville: string | nil
+      categorie: string | nil
+      montantTotal: number
 
 /contrevenants:
   get:
@@ -50,3 +63,22 @@ types:
           application/json:
             example:
               { "error": "Les dates doivent etre au format ISO 8601 YYYY-MM-DD." }
+
+/etablissement/{business_id}:
+  get:
+    description: Retourne les details d'un établissement.
+    uriParameters:
+      business_id:
+        type: integer
+        required: true
+        example: 123456
+    responses:
+      200:
+        body:
+          application/json:
+            type: EtablissementDetails
+      404:
+        body:
+          application/json:
+            example:
+              { "error": "Établissement non trouvé." }

@@ -184,7 +184,7 @@ def contrevenants():
 
 @app.route("/doc", methods=["GET"])
 def doc():
-    return redirect(url_for("static", filename="docs/contrevenants.html"))
+    return redirect(url_for("static", filename="doc/api.html"))
 
 
 
