@@ -48,6 +48,7 @@ types:
       business_id: integer
       etablissement: string
       adresse: string
+      nombre_violations: integer
 
 /contrevenants:
   get:
@@ -117,3 +118,14 @@ types:
                   <nombre_violations>4</nombre_violations>
                 </etablissement>
               </etablissements>
+
+/violations_par_etablissement.csv:
+  get:
+    description: Retourne la liste des etablissements avec leur nombre de violations en format CSV.
+    responses:
+      200:
+        body:
+          text/csv:
+            example: |
+              business_id,etablissement,adresse,nombre_violations
+              123,Restaurant ABC,123 Rue Test,4

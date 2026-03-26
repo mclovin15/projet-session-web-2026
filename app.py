@@ -1,7 +1,9 @@
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 import base64
+import csv
 import hashlib
+import io
 import uuid
 import atexit
 import os
@@ -210,6 +212,26 @@ def violations_par_etablissement_xml():
     return Response(
         xml_bytes,
         mimetype="application/xml; charset=utf-8",
+    )
+
+@app.route("/violations_par_etablissement.csv", methods=["GET"])
+def violations_par_etablissement_csv():
+    violations = _get_db().return_all_etablissement_with_nb_violations()
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow(["business_id", "etablissement", "adresse", "nombre_violations"])
+    for item in violations:
+        writer.writerow([
+            item["business_id"],
+            item["etablissement"],
+            item["adresse"],
+            item["nombre_violations"],
+        ])
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv; charset=utf-8",
     )
 
 scheduler.add_job(
