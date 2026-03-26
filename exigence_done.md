@@ -107,10 +107,10 @@
 
 ### C3 - Meme service en CSV - 5 XP
 
-- [ ] Offrir exactement les memes donnees que C1 en format CSV
-- [ ] Utiliser l'encodage UTF-8
-- [ ] Documenter le service avec RAML
-- [ ] Rendre la documentation disponible sur `/doc`
+- [x] Offrir exactement les memes donnees que C1 en format CSV
+- [x] Utiliser l'encodage UTF-8
+- [x] Documenter le service avec RAML
+- [x] Rendre la documentation disponible sur `/doc`
 
 ### D1 - Demande d'inspection et page de plainte - 15 XP
 
