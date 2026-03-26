@@ -46,7 +46,7 @@
          </div>
          {% with
          search_action=url_for('index'),
-         search_placeholder="Rechercher un etablissement, un proprietaire ou une rue",
+         search_placeholder="Rechercher un établissement, un propriétaire ou une rue",
          search_input_id="search-mode-1",
          clear_button_id="clear-mode-1",
          search_mode="1"
@@ -102,7 +102,7 @@
             </p>
          </div>
          {% if liste_etablissement %}
-         <form action="{{ url_for('index') }}" method="get" class="flex flex-col gap-4 md:flex-row md:items-end">
+         <form id="resto-search-form" class="flex flex-col gap-4 md:flex-row md:items-end">
             <input type="hidden" name="mode" value="3">
 
             <div class="flex-1">
@@ -111,19 +111,23 @@
                </label>
                <div class="relative">
                   <input id="restaurant-select" name="query" list="restaurant-options"
-                     value="{{ request.args.get('query', '') }}"
-                     placeholder="Commencer a taper le nom d'un etablissement"
+                      autocomplete="off"
+                     placeholder="Sélectionner un restaurant dans la liste ou taper le restaurant"
                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-sky-100">
-                  <datalist id="restaurant-options">
+
+                     <datalist id="restaurant-options">
                      {% for etablissement in liste_etablissement %}
-                     {% set etablissement_value = etablissement.etablissement if etablissement.etablissement is defined
-                     else etablissement %}
-                     <option value="{{ etablissement_value }}"></option>
+                     {% set etablissement_value = etablissement.nom + ' - ' + etablissement.adresse %}
+                     <option value="{{ etablissement_value }}" data-business_id="{{ etablissement.business_id }}">{{ etablissement_value }}</option>
                      {% endfor %}
                   </datalist>
-                  <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400">
-                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                  </span>
+                  <button id="clear-restaurant-select" type="button" aria-label="Vider la recherche"
+                     class="absolute inset-y-0 right-4 my-auto flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                           d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                     </svg>
+                  </button>
                </div>
             </div>
 

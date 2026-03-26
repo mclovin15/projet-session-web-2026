@@ -7,8 +7,10 @@ import uuid
 
 try:
     from .violation import Violation
+    from .etablissement import Etablissement
 except ImportError:
     from violation import Violation
+    from etablissement import Etablissement
 
 
 class Database:
@@ -128,10 +130,28 @@ class Database:
         connection = self.get_connection()
         cursor = connection.execute(
             """
-            select DISTINCT etablissement,adresse,business_id from violations ORDER by etablissement;
+                SELECT DISTINCT business_id, etablissement, adresse
+                 from violations ORDER by etablissement;
             """
         )
-        return cursor.fetchall()
+        return [Etablissement.from_distinct_select(row) for row in cursor.fetchall()]
+    
+    def return_etablissement_details(self, business_id: int):
+        """Retourne les details d'un établissement par son business_id"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            """
+            SELECT * FROM violations
+            WHERE business_id = ?
+            """,
+            (business_id,),
+        )
+        rows = cursor.fetchall()
+        if not rows:
+            return None
+
+        violations = [Violation.from_db_row(row) for row in rows]
+        return Etablissement.from_violations(violations)
     
     def search_violations_by_date_range(self, from_date, to_date):
         """Recherche des violations avec un range donnée"""

@@ -6,17 +6,10 @@ import uuid
 import atexit
 import os
 
-from flask import Flask
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
-from flask import url_for
+from flask import Flask,flash, g, redirect,render_template,request,session,url_for,jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-from flask import jsonify
+from flask_json_schema import JsonSchema, JsonValidationError
 
 try:
     from .update_violations import update_violations
@@ -33,6 +26,23 @@ app = Flask(__name__, static_url_path="", static_folder="static")
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB upload limit
 
 scheduler = BackgroundScheduler(timezone="America/Toronto")
+schema = JsonSchema(app)
+
+# TODO: à revoir
+INSPECTION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "etablissement": {"type": "string"},
+        "adresse": {"type": "string"},
+        "ville": {"type": "string"},
+    },
+    "required": ["etablissement", "adresse", "ville"],
+    "additionalProperties": False,
+}
+
+@app.errorhandler(JsonValidationError)
+def handle_validation_error(e):
+    return jsonify({"error": e.message, "details": e.errors}), 400
 
 def _get_db():
     """Pool connexion à bd."""
@@ -98,7 +108,7 @@ def index():
     query = request.args.get("query", "").strip()
     mode = request.args.get("mode", "1")
 
-    if query:
+    if query and mode == "1":
         violations = _get_db().search_violations(query)
         return render_template(
             "search_results.html",
@@ -107,6 +117,7 @@ def index():
             mode=mode,
         )
     elif mode == "3":
+        # sert à remplir la liste deroulante
         liste_etablissement = _get_db().return_all_etablissements()
         return render_template("index.html", mode=mode,liste_etablissement=liste_etablissement)
         
@@ -123,6 +134,16 @@ def is_iso_extended_date(date_str: str) -> bool:
 def iso_date_to_basic(date_str: str) -> str:
     """Convertit YYYY-MM-DD en YYYYMMDD."""
     return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
+
+@app.route("/etablissement/<int:business_id>", methods=["GET"])
+def etablissement_details(business_id: int):
+    """API retourne en JSON les details d'un établissement."""
+    etablissement = _get_db().return_etablissement_details(business_id)
+    if not etablissement:
+        return jsonify({"error": "Établissement non trouvé."}), 404
+
+    return jsonify(etablissement.to_dict()), 200
+
 
 @app.route("/contrevenants", methods=["GET"])
 def contrevenants():
