@@ -186,7 +186,10 @@ def contrevenants():
 def doc():
     return redirect(url_for("static", filename="doc/api.html"))
 
-
+@app.route("/violations_par_etablissement", methods=["GET"])
+def violations_par_etablissement():
+    violations = _get_db().return_all_etablissement_with_nb_violations()
+    return jsonify(violations),200
 
 scheduler.add_job(
     func=sync_violations_job,

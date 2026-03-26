@@ -164,3 +164,21 @@ class Database:
             (from_date, to_date),
         )
         return [Violation.from_db_row(row) for row in cursor.fetchall()]
+
+    def return_all_etablissement_with_nb_violations(self):
+        """Recherche des violations avec un range donnée"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+        """SELECT
+            business_id,
+            etablissement,
+            adresse,
+            COUNT(*) AS nombre_violations
+        FROM violations
+        GROUP BY business_id, etablissement, adresse
+        ORDER BY nombre_violations DESC;
+        """)
+        rows = cursor.fetchall()
+        
+        return [dict(row) for row in rows]
+        

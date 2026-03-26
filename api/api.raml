@@ -8,7 +8,8 @@ documentation:
   - title: API
     content: |
       Service REST permettant d'obtenir la liste des contraventions
-      entre deux dates et les details d'un établissement.
+      entre deux dates, les details d'un établissement et le nombre
+      de violations par établissement.
 
 types:
   Violation:
@@ -40,6 +41,13 @@ types:
       ville: string | nil
       categorie: string | nil
       montantTotal: number
+
+  EtablissementViolationCount:
+    type: object
+    properties:
+      business_id: integer
+      etablissement: string
+      adresse: string
 
 /contrevenants:
   get:
@@ -82,3 +90,12 @@ types:
           application/json:
             example:
               { "error": "Établissement non trouvé." }
+
+/violations_par_etablissement:
+  get:
+    description: Retourne la liste des établissements avec leur nombre de violations.
+    responses:
+      200:
+        body:
+          application/json:
+            type: EtablissementViolationCount[]

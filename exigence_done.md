@@ -92,11 +92,11 @@
 
 ### C1 - Service REST etablissements et nombre d'infractions - 10 XP
 
-- [ ] Offrir un service REST listant les etablissements ayant commis une ou plusieurs infractions
-- [ ] Indiquer pour chaque etablissement le nombre d'infractions connues
-- [ ] Trier la liste en ordre decroissant du nombre d'infractions
-- [ ] Documenter le service avec RAML
-- [ ] Rendre la documentation disponible sur `/doc`
+- [x] Offrir un service REST listant les etablissements ayant commis une ou plusieurs infractions
+- [x] Indiquer pour chaque etablissement le nombre d'infractions connues
+- [x] Trier la liste en ordre decroissant du nombre d'infractions
+- [x] Documenter le service avec RAML
+- [x] Rendre la documentation disponible sur `/doc`
 
 ### C2 - Meme service en XML - 5 XP
 
