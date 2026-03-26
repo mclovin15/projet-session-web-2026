@@ -1,193 +1,83 @@
-
 <section class="space-y-6 mt-10" id="search-resto-section">
 
-   {% if liste_violation_etablissement %}
-      {% set current = etablissement if etablissement is defined else liste_violation_etablissement[0] %}
+   <article class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-soft">
+      <div class="border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-sky-50 px-8 py-8">
+         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div class="min-w-0">
 
-      <article class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-soft">
-         <div class="border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-sky-50 px-8 py-8">
-            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-               <div class="min-w-0">
-                  <div class="flex flex-wrap items-center gap-3">
-                     <span class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white">
-                        {{ get_categorie_violation_icon(current.categorie) | safe }}
-                        {{ current.categorie }}
-                     </span>
-                     <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ get_status_violation_color(current.statut) }}">
-                        {{ current.statut }}
-                     </span>
+
+               <h1 class="mt-5 text-4xl font-black tracking-tight text-slate-900" id="resto-name">
+                  
+               </h1>
+
+               <p class="mt-3 text-base font-medium text-slate-500" id="resto-proprio" title="Propriétaire de l'établissement">
+                  
+               </p>
+
+               <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
+                  <div>
+                     <i class="fa-solid fa-location-dot mr-2 text-slate-400"></i>
+                     <span id="resto-adresse"></span>
                   </div>
+                  <div>
+                     <i class="fa-solid fa-city mr-2 text-slate-400"></i>
+                     <span id="resto-ville"></span>
+                  </div>
+                  <div>
+                     <i class="fa-solid fa-building mr-2 text-slate-400"></i>
+                     <span id="resto-bussiness_id"  title="Business ID"></span>
+                  </div>
+                  <div class="">
+                     <span class="text-slate-400 font-semibold">Catégorie :</span> 
+                     <span id="resto-cat"></span>
+                  </div>
+               </div>
+            </div>
 
-                  <h1 class="mt-5 text-4xl font-black tracking-tight text-slate-900">
-                     {{ current.etablissement }}
-                  </h1>
-
-                  <p class="mt-3 text-base font-medium text-slate-500">
-                     {{ current.proprietaire }}
+            <div class="grid gap-3 sm:grid-cols-3 lg:min-w-[21rem] lg:grid-cols-1 xl:grid-cols-2">
+               <div class="rounded-2xl bg-slate-900 px-5 py-4 text-white">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
+                     Nombre d'Infractions
                   </p>
-
-                  <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
-                     <p>
-                        <i class="fa-solid fa-location-dot mr-2 text-slate-400"></i>
-                        {{ current.adresse }}
-                     </p>
-                     <p>
-                        <i class="fa-solid fa-city mr-2 text-slate-400"></i>
-                        {{ current.ville }}
-                     </p>
-                     <p>
-                        <i class="fa-solid fa-building mr-2 text-slate-400"></i>
-                        Business ID {{ current.business_id }}
-                     </p>
-                  </div>
-               </div>
-
-               <div class="grid gap-3 sm:grid-cols-3 lg:min-w-[21rem] lg:grid-cols-1 xl:grid-cols-3">
-                  <div class="rounded-2xl bg-slate-900 px-5 py-4 text-white">
-                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-                        Infractions
-                     </p>
-                     <p class="mt-2 text-3xl font-black">
-                        {{ liste_violation_etablissement|length }}
-                     </p>
-                  </div>
-
-                  <div class="rounded-2xl bg-slate-50 px-5 py-4">
-                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Montant total
-                     </p>
-                     <p class="mt-2 text-3xl font-black text-slate-900">
-                        {{ "%.2f"|format(liste_violation_etablissement|sum(attribute="montant")) }} $
-                     </p>
-                  </div>
-
-                  <div class="rounded-2xl bg-slate-50 px-5 py-4">
-                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Dernier statut
-                     </p>
-                     <p class="mt-2 text-lg font-bold text-slate-900">
-                        {{ current.formatted_date_statut }}
-                     </p>
-                  </div>
-               </div>
-            </div>
-         </div>
-
-         <div class="grid gap-4 px-8 py-6 md:grid-cols-2 xl:grid-cols-4">
-            <div class="rounded-2xl bg-slate-50 p-5">
-               <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Categorie
-               </p>
-               <p class="mt-2 text-base font-semibold text-slate-900">
-                  {{ current.categorie }}
-               </p>
-            </div>
-
-            <div class="rounded-2xl bg-slate-50 p-5">
-               <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Proprietaire
-               </p>
-               <p class="mt-2 text-base font-semibold text-slate-900">
-                  {{ current.proprietaire }}
-               </p>
-            </div>
-
-            <div class="rounded-2xl bg-slate-50 p-5">
-               <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Ville
-               </p>
-               <p class="mt-2 text-base font-semibold text-slate-900">
-                  {{ current.ville }}
-               </p>
-            </div>
-
-            <div class="rounded-2xl bg-slate-50 p-5">
-               <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Adresse
-               </p>
-               <p class="mt-2 text-base font-semibold text-slate-900">
-                  {{ current.adresse }}
-               </p>
-            </div>
-         </div>
-      </article>
-
-      <section class="space-y-4">
-         <div class="flex items-center justify-between">
-            <div>
-               <p class="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
-                  Historique
-               </p>
-               <h2 class="mt-2 text-2xl font-black tracking-tight text-slate-900">
-                  Toutes les contraventions de cet établissement
-               </h2>
-            </div>
-         </div>
-
-         {% for violation in liste_violation_etablissement %}
-         <article class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-soft">
-            <div class="grid gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)]">
-               <div class="min-w-0">
-                  <div class="flex flex-wrap items-center gap-2">
-                     <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
-                        Poursuite #{{ violation.id_poursuite }}
-                     </span>
-                     <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ get_status_violation_color(violation.statut) }}">
-                        {{ violation.statut }}
-                     </span>
-                  </div>
-
-                  <p class="mt-4 text-base leading-7 text-slate-700">
-                     {{ violation.descr }}
+                  <p class="mt-2 text-3xl font-black" id="resto-nb-infract">
+                     resto-nb-infract
                   </p>
                </div>
 
-               <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                  <div class="rounded-2xl bg-slate-50 p-4">
-                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Date de violation
-                     </p>
-                     <p class="mt-2 text-base font-semibold text-slate-900">
-                        {{ violation.formatted_date_violation }}
-                     </p>
-                  </div>
-
-                  <div class="rounded-2xl bg-slate-50 p-4">
-                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Date de jugement
-                     </p>
-                     <p class="mt-2 text-base font-semibold text-slate-900">
-                        {{ violation.formatted_date_jugement }}
-                     </p>
-                  </div>
-
-                  <div class="rounded-2xl bg-slate-50 p-4">
-                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Date du statut
-                     </p>
-                     <p class="mt-2 text-base font-semibold text-slate-900">
-                        {{ violation.formatted_date_statut }}
-                     </p>
-                  </div>
-
-                  <div class="rounded-2xl bg-slate-900 p-4 text-white">
-                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-                        Montant
-                     </p>
-                     <p class="mt-2 text-2xl font-black">
-                        {{ "%.2f"|format(violation.montant) }} $
-                     </p>
-                  </div>
+               <div class="rounded-2xl bg-slate-50 px-5 py-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                     Montant total
+                  </p>
+                  <p class="mt-2 text-3xl font-black text-slate-900" id="resto-montantTotal">
+                     
+                  </p>
                </div>
+
+
             </div>
-         </article>
-         {% endfor %}
-      </section>
-   {% else %}
-      <div class="rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center shadow-soft">
+         </div>
+      </div>
+
+   </article> 
+
+   <section class="space-y-4">
+      <div class="flex items-center justify-between">
+         <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
+               Historique
+            </p>
+            <h2 class="mt-2 text-2xl font-black tracking-tight text-slate-900">
+               Toutes les contraventions de cet établissement
+            </h2>
+         </div>
+      </div>
+      
+      <div id="resto-violations" class="space-y-4"></div>
+    
+   </section>
+   <!-- <div class="rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center shadow-soft" id="resto-error">
          <p class="text-lg font-semibold text-slate-900">
             Aucun établissement à afficher.
          </p>
-      </div>
-   {% endif %}
+      </div> -->
 </section>
