@@ -9,7 +9,7 @@ import atexit
 import os
 import xml.etree.ElementTree as ET
 
-from flask import Flask,flash, g, redirect,render_template,request,session,url_for,jsonify, Response
+from flask import Flask,abort,flash, g, redirect,render_template,request,session,url_for,jsonify, Response
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from flask_json_schema import JsonSchema, JsonValidationError
@@ -262,14 +262,19 @@ def violations_par_etablissement_csv():
         mimetype="text/csv; charset=utf-8",
     )
 
+@app.route("/inspections", methods=["GET"])
+def inspections():
+    plaintes = _get_db().return_all_inspections()
+    return render_template("inspections.html",plaintes=plaintes)
+
 @app.route("/demande-inspection", methods=["GET"])
 def demande_inspection():
     liste_etablissement = _get_db().return_all_etablissements()
     
     return render_template("form_demande_inspection.html",liste_etablissement=liste_etablissement)
 
-
-@app.route("/creer_demande_inspection", methods=["POST"])
+# TODO: revoir comment je fais mon post
+@app.route("/demande-inspection", methods=["POST"])
 @schema.validate(DEMANDE_INSPECTION_SCHEMA)
 def creer_demande_inspection():
     demande_inspection = request.get_json()
@@ -277,12 +282,38 @@ def creer_demande_inspection():
         return jsonify({
             "error": "La date doit etre au format ISO 8601 YYYYMMDD ou YYYY-MM-DD."
         }), 400
-        
-    print(demande_inspection)
-    # TODO: peut être implémenter une save dans db 
+    
+    if(not _get_db().etablissement_exists_by_infos(demande_inspection.get("etablissement"),demande_inspection.get("adresse"),demande_inspection.get("ville"))):
+        return jsonify({
+            "error": "Aucun établissement ne correspond aux informations fournies."
+        }), 400
+    
+    _get_db().insert_inspection(demande_inspection)
+    
     return jsonify({"success": True,"message": "Demande d'inspection créée avec succès."}), 201
 
-
+@app.route("/demande-inspection/<int:id_inspection>", methods=["DELETE"])
+def supprimer_demande_inspection(id_inspection):
+    if not id_inspection:
+        return jsonify({
+            "error": "Le parametre 'id_inspection' est obligatoire."
+        }), 400
+    
+    try:
+        id_inspection = int(id_inspection)
+    except ValueError:
+        return jsonify({
+            "error": "Le parametre 'id_inspection' doit etre un entier."
+        }), 400
+    
+    if  _get_db().get_inspection_by_id(id_inspection) is None:
+        return jsonify({
+            "error": f"Aucune demande d'inspection trouvee avec l'id {id_inspection}."
+        }), 404
+    
+    _get_db().delete_inspection(id_inspection)
+    
+    return jsonify({"success": True,"message": f"Demande d'inspection avec l'id {id_inspection} supprimee avec succes."}), 200
 # ==== FIN API REST ====
 
 scheduler.add_job(

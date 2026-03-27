@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="space-y-4 mb-5">
+   <div class="flex items-center justify-between">
+      <div>
+         <h2 class="mt-2 text-2xl font-black tracking-tight text-slate-900">
+            Toutes les demandes d'inspection
+         </h2>
+      </div>
+
+      <div class="flex items-center gap-2">
+         <a href="{{ url_for('demande_inspection') }}"
+            class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+            title="Créer une nouvelle plainte" aria-label="Créer une nouvelle plainte">
+            <i class="fa-solid fa-plus mr-2"></i>
+            Nouvelle Plainte
+         </a>
+      </div>
+   </div>
+
+
+   </div>
+   </div>
+
+</section>
+
+{% with alert_id="demande-inspection-message" %}
+{% include "_feedback_message.html" %}
+{% endwith %}
+
+
+{% if plaintes|length > 0 %}
+{% for plainte in plaintes %}
+{% include "_plainte_card.html" %}
+{% endfor %}
+{% else %}
+<div class="rounded-[2rem]  bg-white p-10 text-center shadow-soft">
+   <p class="text-lg font-semibold text-slate-900">
+      Aucun établissement à afficher.
+   </p>
+</div>
+{% endif %}
+{% endblock %}

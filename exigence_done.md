@@ -56,7 +56,7 @@
 
 - [x] Offrir un service REST pour obtenir les contraventions entre deux dates
 - [x] Recevoir les dates via parametres
-- [x] Utiliser le format ISO 8601 pour les dates
+- [ ] Utiliser le format ISO 8601 pour les dates --> revoir ceci vérif pas complète
 - [x] Retourner les donnees en format JSON
 - [x] Implementer la route du type `GET /contrevenants?du=YYYY-MM-DD&au=YYYY-MM-DD`
 - [x] Rendre disponible une route `/doc`

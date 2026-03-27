@@ -9,8 +9,8 @@ documentation:
     content: |
       Service REST permettant d'obtenir la liste des contraventions
       entre deux dates, les details d'un établissement et le nombre
-      de violations par établissement, ainsi que de creer une demande
-      d'inspection.
+      de violations par établissement, ainsi que de creer et supprimer
+      une demande d'inspection.
 
 types:
   Violation:
@@ -74,8 +74,19 @@ types:
     type: object
     properties:
       success: boolean
+      message: string
     example:
-      { "success": true }
+      {
+        "success": true,
+        "message": "Operation effectuee avec succes."
+      }
+
+  ErrorResponse:
+    type: object
+    properties:
+      error: string
+    example:
+      { "error": "Une erreur est survenue." }
 
   ValidationErrorResponse:
     type: object
@@ -170,7 +181,7 @@ types:
               business_id,etablissement,adresse,nombre_violations
               123,Restaurant ABC,123 Rue Test,4
 
-/creer_demande_inspection:
+/demande-inspection:
   post:
     description: Cree une demande d'inspection a partir d'un document JSON valide.
     body:
@@ -185,3 +196,25 @@ types:
         body:
           application/json:
             type: ValidationErrorResponse
+
+/demande-inspection/{id_inspection}:
+  delete:
+    description: Supprime une demande d'inspection existante a partir de son identifiant.
+    uriParameters:
+      id_inspection:
+        type: integer
+        required: true
+        example: 42
+    responses:
+      200:
+        body:
+          application/json:
+            type: SuccessResponse
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+      404:
+        body:
+          application/json:
+            type: ErrorResponse

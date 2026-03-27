@@ -16,11 +16,48 @@ $(document).ready(function () {
   $("#search-date-tab").hide();
   $("#search-resto-section").hide();
   $("#resto-error").hide();
+  // hideFeedbackMessage("#demande-inspection-message");
 
   $("#clear-restaurant-select").on("click", function () {
     $("#restaurant-select").val("");
     $("#resto-error").hide().text("");
     $("#restaurant-select").focus();
+  });
+
+  $("#demande-inspection-delete").on("click", function () {
+    
+    const idInspection = $(this).data("id");
+    if (!confirm(`Supprimer la plainte #${idInspection} ?`)) {
+      return;
+    }
+    $.ajax({
+      url: "/demande-inspection/" + idInspection,
+      method: "DELETE",
+      success: function (data, status) {
+        const msg = data.message;
+        showFeedbackMessage("#demande-inspection-message", msg, "success", {
+          autoHide: true,
+          delay: 800,
+        });
+        $(`#plainte-${idInspection}`).fadeOut(200, function () {
+          $(this).remove();
+        });
+        setTimeout(() => {  
+          window.location.reload();
+        }, 800);
+        
+      },
+      error: function (xhr) {
+        const errorMessage =
+          xhr.responseJSON && xhr.responseJSON.error
+            ? xhr.responseJSON.error
+            : "Une erreur est survenue lors de la suppression.";
+        showFeedbackMessage("#demande-inspection-message", errorMessage, "error", {
+          autoHide: true,
+          delay: 4000,
+        });
+      }
+    });
   });
 
   $("#resto-search-form").on("submit", function (event) {

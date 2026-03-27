@@ -181,4 +181,75 @@ class Database:
         rows = cursor.fetchall()
         
         return [dict(row) for row in rows]
+    
+    # TODO: voir si j'utilise cette meta
+    def etablissement_exists_by_id(self, business_id: int):
+        """Verifie si un etablissement existe deja par son business_id"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            "SELECT 1 FROM violations WHERE business_id = ?", (business_id,)
+        )
+        return cursor.fetchone() is not None
+    
+    def etablissement_exists_by_infos(self, nom: str,adresse: str, ville: str):
+        """Verifie si un etablissement existe deja par son nom, adresse et ville"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            "SELECT 1 FROM violations WHERE etablissement = ? AND adresse = ? AND ville = ?",
+            (nom, adresse, ville)
+        )
+        return cursor.fetchone() is not None
+    
+    def insert_inspection(self, inspection: dict):
+        """Insere une nouvelle demande d'inspection"""
+
+        connection = self.get_connection()
+        connection.execute(
+            """
+            INSERT INTO inspections (
+                adresse, etablissement, ville, date_visite,
+                nom_complet_client, description_prob
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                # inspection["business_id"], # TODO: voir si on veut garder business_id dans table inspections
+                inspection["adresse"],
+                inspection["etablissement"],
+                inspection["ville"],
+                inspection["date_visite"],
+                inspection["nom_complet_client"],
+                inspection["description_prob"],
+            ),
+        )
+        connection.commit()
+
+    def get_inspection_by_id(self, id_inspection: int):
+        """Retourne une demande d'inspection par son identifiant."""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            "SELECT * FROM inspections WHERE id_inspection = ?",
+            (id_inspection,),
+        )
+        row = cursor.fetchone()
+        return dict(row) if row is not None else None
+
+    def delete_inspection(self, id_inspection: int):
+        """Supprime une demande d'inspection."""
+        connection = self.get_connection()
+        connection.execute(
+            "DELETE FROM inspections WHERE id_inspection = ?",
+            (id_inspection,),
+        )
+        connection.commit()
         
+    def return_all_inspections(self):
+        """Retourne toutes les demandes d'inspection ordonnees par date de visite decroissante"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            """
+            SELECT * FROM inspections
+            ORDER BY id_inspection ASC
+            """
+            # TODO: voir si on veut ordonner par date_visite ou id_inspection (qui est auto-increment) 
+        )
+        return [dict(row) for row in cursor.fetchall()]

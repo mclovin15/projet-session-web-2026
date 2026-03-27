@@ -97,7 +97,7 @@
                 </button>
             </div>
 
-            {% with alert_id="demande-inspection-message" %}
+            {% with alert_id="demande-inspection-message-form" %}
                 {% include "_feedback_message.html" %}
             {% endwith %}
         </form>
@@ -176,7 +176,7 @@
                 description_prob: document.getElementById("demande-inspection-descriptions").value.trim()
             };
 
-            hideFeedbackMessage("#demande-inspection-message");
+            hideFeedbackMessage("#demande-inspection-message-form");
 
             try {
                 if (!syncEtablissementSelection()) {
@@ -203,7 +203,7 @@
                 }
 
                 showFeedbackMessage(
-                    "#demande-inspection-message",
+                    "#demande-inspection-message-form",
                     data.message || "Demande envoyée avec succès.",
                     "success",
                     { autoHide: true, delay: 4000 }
@@ -212,7 +212,7 @@
                 resetEtablissementSelection();
             } catch (error) {
                 showFeedbackMessage(
-                    "#demande-inspection-message",
+                    "#demande-inspection-message-form",
                     error.message,
                     "error"
                 );
