@@ -9,7 +9,8 @@ documentation:
     content: |
       Service REST permettant d'obtenir la liste des contraventions
       entre deux dates, les details d'un établissement et le nombre
-      de violations par établissement.
+      de violations par établissement, ainsi que de creer une demande
+      d'inspection.
 
 types:
   Violation:
@@ -49,6 +50,45 @@ types:
       etablissement: string
       adresse: string
       nombre_violations: integer
+
+  DemandeInspection:
+    type: object
+    properties:
+      etablissement: string
+      adresse: string
+      ville: string
+      date_visite: string
+      nom_complet_client: string
+      description_prob: string
+    example:
+      {
+        "etablissement": "Restaurant ABC",
+        "adresse": "123 Rue Test",
+        "ville": "Montreal",
+        "date_visite": "2026-03-27",
+        "nom_complet_client": "Jean Tremblay",
+        "description_prob": "Presence d'insectes et surfaces sales."
+      }
+
+  SuccessResponse:
+    type: object
+    properties:
+      success: boolean
+    example:
+      { "success": true }
+
+  ValidationErrorResponse:
+    type: object
+    properties:
+      error: string
+      errors: string[]
+    example:
+      {
+        "error": "JSON validation error",
+        "errors": [
+          "'description_prob' is a required property"
+        ]
+      }
 
 /contrevenants:
   get:
@@ -129,3 +169,19 @@ types:
             example: |
               business_id,etablissement,adresse,nombre_violations
               123,Restaurant ABC,123 Rue Test,4
+
+/creer_demande_inspection:
+  post:
+    description: Cree une demande d'inspection a partir d'un document JSON valide.
+    body:
+      application/json:
+        type: DemandeInspection
+    responses:
+      201:
+        body:
+          application/json:
+            type: SuccessResponse
+      400:
+        body:
+          application/json:
+            type: ValidationErrorResponse

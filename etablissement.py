@@ -46,9 +46,9 @@ class Etablissement:
     def from_distinct_select(cls, row):
         return cls(
             nom=row["etablissement"],
-        
             business_id=int(row["business_id"]),
             adresse=row["adresse"],
+            ville=row["ville"],
         )
 
     @classmethod

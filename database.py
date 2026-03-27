@@ -130,7 +130,7 @@ class Database:
         connection = self.get_connection()
         cursor = connection.execute(
             """
-                SELECT DISTINCT business_id, etablissement, adresse
+                SELECT DISTINCT business_id, etablissement, adresse, ville
                  from violations ORDER by etablissement;
             """
         )

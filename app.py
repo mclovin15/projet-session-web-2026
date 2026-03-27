@@ -13,6 +13,7 @@ from flask import Flask,flash, g, redirect,render_template,request,session,url_f
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from flask_json_schema import JsonSchema, JsonValidationError
+from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 
 try:
     from .update_violations import update_violations
@@ -31,21 +32,38 @@ app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB upload limit
 scheduler = BackgroundScheduler(timezone="America/Toronto")
 schema = JsonSchema(app)
 
-# TODO: à revoir
-INSPECTION_SCHEMA = {
+DEMANDE_INSPECTION_SCHEMA = {
     "type": "object",
     "properties": {
         "etablissement": {"type": "string"},
         "adresse": {"type": "string"},
         "ville": {"type": "string"},
+        "date_visite" : {"type": "string"},
+        "nom_complet_client" : {"type": "string"},
+        "description_prob" : {"type": "string"}
     },
-    "required": ["etablissement", "adresse", "ville"],
-    "additionalProperties": False,
+    "required": ["etablissement", "adresse", "ville","date_visite","nom_complet_client","description_prob"],
+    "additionalProperties": False
 }
 
 @app.errorhandler(JsonValidationError)
 def handle_validation_error(e):
-    return jsonify({"error": e.message, "details": e.errors}), 400
+    return jsonify({
+        "error": "JSON invalide selon le schema",
+        "errors": [err.message for err in e.errors],
+    }), 400
+
+@app.errorhandler(BadRequest)
+def handle_bad_request(e):
+    return jsonify({
+        "error": "JSON mal forme"
+    }), 400
+
+@app.errorhandler(UnsupportedMediaType)
+def handle_unsupported_media_type(e):
+    return jsonify({
+        "error": "Le Content-Type doit etre application/json"
+    }), 415
 
 def _get_db():
     """Pool connexion à bd."""
@@ -87,6 +105,27 @@ def _get_categorie_violation_icon(categorie: str):
         return '<i class="fa-solid fa-beer-mug-empty"></i>'
     else:
         return '<i class="fa-solid fa-shop"></i>'
+    
+def is_iso_extended_date(date_str: str) -> bool:
+    """ Permet savoir si format est YYYY-MM-DD """
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+def is_date_iso(date_str: str) -> bool:
+    """ Permet savoir si format est YYYYMMDD """
+    try:
+        datetime.strptime(date_str, "%Y%m%d")
+        return True
+    except ValueError:
+        if(is_iso_extended_date(date_str)):
+            return True
+        return False
+
+def iso_date_to_basic(date_str: str) -> str:
+    """Convertit YYYY-MM-DD en YYYYMMDD."""
+    return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -103,7 +142,6 @@ def inject_auth_state():
         "get_categorie_violation_icon": _get_categorie_violation_icon,
         "get_status_violation_color": _get_status_violation_color,
     }
-
 
 @app.route("/", methods=["GET"])
 def index():
@@ -126,17 +164,11 @@ def index():
         
     return render_template("index.html", mode=mode)
 
-def is_iso_extended_date(date_str: str) -> bool:
-    """ Permet savoir si format est YYYY-MM-DD """
-    try:
-        datetime.strptime(date_str, "%Y-%m-%d")
-        return True
-    except ValueError:
-        return False
+@app.route("/doc", methods=["GET"])
+def doc():
+    return redirect(url_for("static", filename="doc/api.html"))
 
-def iso_date_to_basic(date_str: str) -> str:
-    """Convertit YYYY-MM-DD en YYYYMMDD."""
-    return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
+# ==== SERVICES API REST ====
 
 @app.route("/etablissement/<int:business_id>", methods=["GET"])
 def etablissement_details(business_id: int):
@@ -146,7 +178,6 @@ def etablissement_details(business_id: int):
         return jsonify({"error": "Établissement non trouvé."}), 404
 
     return jsonify(etablissement.to_dict()), 200
-
 
 @app.route("/contrevenants", methods=["GET"])
 def contrevenants():
@@ -160,6 +191,7 @@ def contrevenants():
         }), 400    
         
     try: 
+        # TODO: faire meilleur verif format date
         # on check si on recoit format YYYY-MM-DD,si oui on convertit
         if(is_iso_extended_date(date_au)):
             date_au = iso_date_to_basic(date_au)
@@ -184,10 +216,6 @@ def contrevenants():
     violations_in_range = _get_db().search_violations_by_date_range(date_du,date_au)
     
     return jsonify([violation.to_dict() for violation in violations_in_range]), 200
-
-@app.route("/doc", methods=["GET"])
-def doc():
-    return redirect(url_for("static", filename="doc/api.html"))
 
 @app.route("/violations_par_etablissement", methods=["GET"])
 def violations_par_etablissement():
@@ -233,6 +261,29 @@ def violations_par_etablissement_csv():
         output.getvalue(),
         mimetype="text/csv; charset=utf-8",
     )
+
+@app.route("/demande-inspection", methods=["GET"])
+def demande_inspection():
+    liste_etablissement = _get_db().return_all_etablissements()
+    
+    return render_template("form_demande_inspection.html",liste_etablissement=liste_etablissement)
+
+
+@app.route("/creer_demande_inspection", methods=["POST"])
+@schema.validate(DEMANDE_INSPECTION_SCHEMA)
+def creer_demande_inspection():
+    demande_inspection = request.get_json()
+    if not is_date_iso(demande_inspection.get("date_visite")):
+        return jsonify({
+            "error": "La date doit etre au format ISO 8601 YYYYMMDD ou YYYY-MM-DD."
+        }), 400
+        
+    print(demande_inspection)
+    # TODO: peut être implémenter une save dans db 
+    return jsonify({"success": True,"message": "Demande d'inspection créée avec succès."}), 201
+
+
+# ==== FIN API REST ====
 
 scheduler.add_job(
     func=sync_violations_job,
