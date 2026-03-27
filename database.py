@@ -4,6 +4,7 @@
 import datetime
 import sqlite3
 import uuid
+import json
 
 try:
     from .violation import Violation
@@ -253,3 +254,39 @@ class Database:
             # TODO: voir si on veut ordonner par date_visite ou id_inspection (qui est auto-increment) 
         )
         return [dict(row) for row in cursor.fetchall()]
+
+    def insert_user(self, user: dict,salt,hashed_password):
+        """Insere un nouveau user"""
+        liste_etablissements_json = json.dumps(user["liste_etablissements_surveiller"])
+
+        connection = self.get_connection()
+        connection.execute(
+            """
+            INSERT INTO users (
+                nom, prenom, email, hash, salt,
+                avatar, liste_etablissements_surveiller
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                user["nom"],
+                user["prenom"],
+                user["email"],
+                hashed_password,
+                salt,
+                user["avatar"],
+                liste_etablissements_json,
+                
+            ),
+        )
+        connection.commit()
+        
+        
+    def email_already_exist(self, email: str) -> bool:
+        """Determine si email deja existant"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            "SELECT * FROM users WHERE email = ?",
+            (email,),
+        )
+        row = cursor.fetchone()
+        return  row is not None

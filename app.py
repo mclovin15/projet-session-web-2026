@@ -5,6 +5,7 @@ import csv
 import hashlib
 import io
 import uuid
+import json
 import atexit
 import os
 import xml.etree.ElementTree as ET
@@ -45,6 +46,32 @@ DEMANDE_INSPECTION_SCHEMA = {
     "required": ["etablissement", "adresse", "ville","date_visite","nom_complet_client","description_prob"],
     "additionalProperties": False
 }
+# TODO: vérifier si je mets avatar
+USER_CREATION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "nom": {"type": "string"},
+        "prenom": {"type": "string"},
+        "email": {"type": "string"},
+        "avatar": {"type": "string", "format": "data-url"}, 
+        "password": {"type": "string"},
+        "liste_etablissements_surveiller": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "business_id": {"type": "integer"},
+                    "etablissement": {"type": "string"},
+                    "adresse": {"type": "string"}
+                },
+                "required": ["business_id", "etablissement", "adresse"],
+                "additionalProperties": False
+            }
+        }
+    },
+    "required": ["nom", "prenom", "email", "password", "liste_etablissements_surveiller"],
+    "additionalProperties": False
+}
 
 @app.errorhandler(JsonValidationError)
 def handle_validation_error(e):
@@ -81,6 +108,13 @@ def sync_violations_job():
             result["inserted"],
             result["updated"],
         )
+def _build_password_hash(password):
+    """Genere le sel et le hash SHA-512 du mot de passe."""
+    salt = uuid.uuid4().hex
+    hashed_password = hashlib.sha512(
+        str(password + salt).encode("utf-8")).hexdigest()
+
+    return salt, hashed_password
 
 def _get_status_violation_color(status: str):
     """Retourne une couleur CSS pour un statut de violation donné."""
@@ -314,6 +348,38 @@ def supprimer_demande_inspection(id_inspection):
     _get_db().delete_inspection(id_inspection)
     
     return jsonify({"success": True,"message": f"Demande d'inspection avec l'id {id_inspection} supprimee avec succes."}), 200
+
+@app.route("/user", methods=["POST"])
+@schema.validate(USER_CREATION_SCHEMA)
+def creer_new_user():
+    new_user = request.get_json()
+    email = new_user.get("email")
+    if _get_db().email_already_exist(email):
+        return jsonify({
+            "error": f"Le courriel {email} est deja pris."
+        }), 404   
+        
+    liste_etablissements_surveiller = new_user.get("liste_etablissements_surveiller")
+
+    for etablissement in liste_etablissements_surveiller:
+        business_id = etablissement["business_id"]
+        nom = etablissement["etablissement"]
+        adresse = etablissement["adresse"]   
+        # TODO: voir si on vérifie tout les champs
+        if not _get_db().etablissement_exists_by_id(business_id):
+            return jsonify({
+            "error": f"L'établissement {nom} n'existe pas."
+            }), 404
+        
+    # TODO: voir si j'intégre avatar
+    password = new_user.get("password")
+    salt, hashed_password = _build_password_hash(password)
+    _get_db().insert_user(new_user,salt,hashed_password)
+    return jsonify({"success": True,"message": f"L'utilisateur {email} a été créer avec succes."}), 201
+
+
+    
+    
 # ==== FIN API REST ====
 
 scheduler.add_job(

@@ -10,7 +10,7 @@ documentation:
       Service REST permettant d'obtenir la liste des contraventions
       entre deux dates, les details d'un établissement et le nombre
       de violations par établissement, ainsi que de creer et supprimer
-      une demande d'inspection.
+      une demande d'inspection et creer un utilisateur.
 
 types:
   Violation:
@@ -68,6 +68,49 @@ types:
         "date_visite": "2026-03-27",
         "nom_complet_client": "Jean Tremblay",
         "description_prob": "Presence d'insectes et surfaces sales."
+      }
+
+  EtablissementSurveille:
+    type: object
+    properties:
+      business_id: integer
+      etablissement: string
+      adresse: string
+    example:
+      {
+        "business_id": 12345,
+        "etablissement": "Restaurant ABC",
+        "adresse": "123 Rue Test"
+      }
+
+  UserCreation:
+    type: object
+    properties:
+      nom: string
+      prenom: string
+      email: string
+      avatar?: string
+      password: string
+      liste_etablissements_surveiller: EtablissementSurveille[]
+    example:
+      {
+        "nom": "Desjardins",
+        "prenom": "Yoan",
+        "email": "yoan@example.com",
+        "avatar": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA",
+        "password": "MonMotDePasse123!",
+        "liste_etablissements_surveiller": [
+          {
+            "business_id": 12345,
+            "etablissement": "Restaurant ABC",
+            "adresse": "123 Rue Test"
+          },
+          {
+            "business_id": 67890,
+            "etablissement": "Cafe XYZ",
+            "adresse": "456 Avenue Exemple"
+          }
+        ]
       }
 
   SuccessResponse:
@@ -214,6 +257,26 @@ types:
         body:
           application/json:
             type: ErrorResponse
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+
+/user:
+  post:
+    description: Cree un nouvel utilisateur avec mot de passe, avatar et liste des etablissements a surveiller.
+    body:
+      application/json:
+        type: UserCreation
+    responses:
+      201:
+        body:
+          application/json:
+            type: SuccessResponse
+      400:
+        body:
+          application/json:
+            type: ValidationErrorResponse
       404:
         body:
           application/json:

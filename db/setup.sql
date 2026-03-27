@@ -25,3 +25,16 @@ CREATE TABLE inspections (
     nom_complet_client TEXT NOT NULL,
     description_prob TEXT NOT NULL, 
 );
+
+create table users (
+   id INTEGER PRIMARY KEY AUTOINCREMENT,
+   nom TEXT,
+   prenom TEXT,
+   email TEXT UNIQUE NOT NULL,
+   avatar TEXT,
+   createdDate DATETIME DEFAULT CURRENT_TIMESTAMP, 
+   liste_etablissements_surveiller TEXT NOT NULL,
+   salt TEXT,
+   hash TEXT,
+   status BOOLEAN NOT NULL DEFAULT TRUE
+);
