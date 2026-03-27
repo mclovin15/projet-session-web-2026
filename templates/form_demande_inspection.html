@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<section class="rounded-[2rem] bg-white p-8 shadow-soft">
+{% include "_back_button.html"%}
+
+<section class="mt-2 rounded-[2rem] bg-white p-8 shadow-soft">
     <div class="mx-auto max-w-4xl">
         <div class="mb-6">
             <p class="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
@@ -95,7 +97,9 @@
                 </button>
             </div>
 
-            <div id="demande-inspection-message" class="text-sm font-medium"></div>
+            {% with alert_id="demande-inspection-message" %}
+                {% include "_feedback_message.html" %}
+            {% endwith %}
         </form>
     </div>
 </section>
@@ -114,8 +118,6 @@
 
     const adresseAfficheeInput = document.getElementById("demande-inspection-adresse-affichee");
     const villeAfficheeInput = document.getElementById("demande-inspection-ville-affichee");
-
-    const demandeInspectionMessage = document.getElementById("demande-inspection-message");
 
     function resetEtablissementSelection() {
         etablissementHiddenInput.value = "";
@@ -174,8 +176,7 @@
                 description_prob: document.getElementById("demande-inspection-descriptions").value.trim()
             };
 
-            demandeInspectionMessage.textContent = "";
-            demandeInspectionMessage.className = "text-sm font-medium";
+            hideFeedbackMessage("#demande-inspection-message");
 
             try {
                 if (!syncEtablissementSelection()) {
@@ -186,7 +187,7 @@
                 payload.adresse = adresseInput.value;
                 payload.ville = villeInput.value;
 
-                const response = await fetch("/creer_demande_inspection", {
+                const response = await fetch("/demande-inspection", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -201,13 +202,20 @@
                     throw new Error((data.error || "Erreur lors de l'envoi de la demande.") + erreurs);
                 }
 
-                demandeInspectionMessage.textContent = data.message || "Demande envoyée avec succès.";
-                demandeInspectionMessage.classList.add("text-green-700");
+                showFeedbackMessage(
+                    "#demande-inspection-message",
+                    data.message || "Demande envoyée avec succès.",
+                    "success",
+                    { autoHide: true, delay: 4000 }
+                );
                 formDemandeInspection.reset();
                 resetEtablissementSelection();
             } catch (error) {
-                demandeInspectionMessage.textContent = error.message;
-                demandeInspectionMessage.classList.add("text-red-600");
+                showFeedbackMessage(
+                    "#demande-inspection-message",
+                    error.message,
+                    "error"
+                );
             }
         });
     }

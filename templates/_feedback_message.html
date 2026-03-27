@@ -1,0 +1,18 @@
+<div
+    id="{{ alert_id | default('feedback-message') }}"
+    class="hidden rounded-2xl border px-4 py-3 text-sm font-medium shadow-sm"
+    data-feedback-message
+    role="status"
+    aria-live="polite">
+    <div class="flex items-start gap-3">
+        <i class="feedback-message-icon fa-solid fa-circle-info mt-0.5 text-sky-600"></i>
+        <p class="feedback-message-text flex-1"></p>
+        <button
+            type="button"
+            class="feedback-message-close text-slate-400 transition hover:text-slate-600"
+            data-feedback-close
+            aria-label="Fermer le message">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+</div>

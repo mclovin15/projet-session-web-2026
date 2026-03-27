@@ -56,17 +56,13 @@
                class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
                Accueil
             </a>
-            <a href="/demande-inspection"
+            <a href="/inspections"
                class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
-               Demande Inspection
+               Consulter Plaintes
             </a>
             <a href="/doc" target="_blank"
                class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
                Doc API
-            </a>
-            <a href="/plaintes"
-               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
-               Plaintes
             </a>
             <a href="/profil"
                class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
@@ -76,9 +72,10 @@
       </div>
    </nav>
 
-   <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {% block content %}{% endblock %}
-   </main>
-</body>
+	<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+	      {% block content %}{% endblock %}
+	   </main>
+   <script src="{{ url_for('static', filename='js/feedback-message.js') }}"></script>
+	</body>
 
 </html>
