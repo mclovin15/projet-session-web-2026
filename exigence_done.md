@@ -56,7 +56,7 @@
 
 - [x] Offrir un service REST pour obtenir les contraventions entre deux dates
 - [x] Recevoir les dates via parametres
-- [ ] Utiliser le format ISO 8601 pour les dates --> revoir ceci vérif pas complète
+- [x] Utiliser le format ISO 8601 pour les dates --> revoir ceci vérif pas complète
 - [x] Retourner les donnees en format JSON
 - [x] Implementer la route du type `GET /contrevenants?du=YYYY-MM-DD&au=YYYY-MM-DD`
 - [x] Rendre disponible une route `/doc`
@@ -114,24 +114,24 @@
 
 ### D1 - Demande d'inspection et page de plainte - 15 XP
 
-- [ ] Offrir un service REST permettant de faire une demande d'inspection a la ville
-- [ ] Valider le document JSON avec `json-schema`
-- [ ] Recevoir le nom de l'etablissement
-- [ ] Recevoir l'adresse
-- [ ] Recevoir la ville
-- [ ] Recevoir la date de la visite du client
-- [ ] Recevoir le nom et prenom du client faisant la plainte
-- [ ] Recevoir une description du probleme observe
-- [ ] Documenter le service avec RAML
-- [ ] Rendre la documentation disponible sur `/doc`
-- [ ] Creer une page HTML de plainte avec formulaire
-- [ ] Faire invoquer le service REST par Javascript
+- [x] Offrir un service REST permettant de faire une demande d'inspection a la ville
+- [x] Valider le document JSON avec `json-schema`
+- [x] Recevoir le nom de l'etablissement
+- [x] Recevoir l'adresse
+- [x] Recevoir la ville
+- [x] Recevoir la date de la visite du client
+- [x] Recevoir le nom et prenom du client faisant la plainte
+- [x] Recevoir une description du probleme observe
+- [x] Documenter le service avec RAML
+- [x] Rendre la documentation disponible sur `/doc`
+- [x] Creer une page HTML de plainte avec formulaire
+- [x] Faire invoquer le service REST par Javascript
 
 ### D2 - Suppression d'une demande d'inspection - 5 XP
 
-- [ ] Offrir un service REST permettant de supprimer une demande d'inspection
-- [ ] Documenter le service avec RAML
-- [ ] Rendre la documentation disponible sur `/doc`
+- [x] Offrir un service REST permettant de supprimer une demande d'inspection
+- [x] Documenter le service avec RAML
+- [x] Rendre la documentation disponible sur `/doc`
 
 ### D3 - Modification et suppression de contrevenants - 15 XP
 
