@@ -56,7 +56,7 @@
 
 - [x] Offrir un service REST pour obtenir les contraventions entre deux dates
 - [x] Recevoir les dates via parametres
-- [x] Utiliser le format ISO 8601 pour les dates --> revoir ceci vérif pas complète
+- [ ] Utiliser le format ISO 8601 pour les dates --> revoir ceci vérif pas complète
 - [x] Retourner les donnees en format JSON
 - [x] Implementer la route du type `GET /contrevenants?du=YYYY-MM-DD&au=YYYY-MM-DD`
 - [x] Rendre disponible une route `/doc`
@@ -155,14 +155,14 @@
 
 ### E1 - Creation de profil utilisateur - 15 XP
 
-- [ ] Offrir un service REST pour creer un profil utilisateur
-- [ ] Valider le document JSON avec `json-schema`
-- [ ] Recevoir le nom complet de l'utilisateur
-- [ ] Recevoir l'adresse courriel de l'utilisateur
-- [ ] Recevoir une liste de noms d'etablissements a surveiller
-- [ ] Recevoir le mot de passe
-- [ ] Documenter le service avec RAML
-- [ ] Rendre la documentation disponible sur `/doc`
+- [x] Offrir un service REST pour creer un profil utilisateur
+- [x] Valider le document JSON avec `json-schema`
+- [x] Recevoir le nom complet de l'utilisateur
+- [x] Recevoir l'adresse courriel de l'utilisateur
+- [x] Recevoir une liste de noms d'etablissements a surveiller
+- [x] Recevoir le mot de passe
+- [x] Documenter le service avec RAML
+- [x] Rendre la documentation disponible sur `/doc`
 
 ### E2 - Interface profil, auth et photo - 15 XP
 
