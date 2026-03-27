@@ -53,20 +53,16 @@
 
          <div class="ml-auto hidden items-center gap-2 md:flex">
             <a href="/"
-               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900 {% if request.path == url_for('index') %}bg-primary text-white{% endif %}">
                Accueil
             </a>
             <a href="/inspections"
-               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
+               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900 {% if request.path == url_for('inspections') %}bg-primary text-white{% endif %}">
                Consulter Plaintes
             </a>
             <a href="/doc" target="_blank"
                class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
                Doc API
-            </a>
-            <a href="/profil"
-               class="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900">
-               Profil
             </a>
          </div>
       </div>
