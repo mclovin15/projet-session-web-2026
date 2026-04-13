@@ -166,10 +166,10 @@
 
 ### E2 - Interface profil, auth et photo - 15 XP
 
-- [ ] Offrir une page web pour invoquer le service de E1
-- [ ] Offrir une option d'authentification
-- [ ] Apres authentification, offrir une page pour modifier la liste des etablissements a surveiller
-- [ ] Permettre le televersement d'une photo de profil
+- [x] Offrir une page web pour invoquer le service de E1
+- [x] Offrir une option d'authentification
+- [x] Apres authentification, offrir une page pour modifier la liste des etablissements a surveiller
+- [x] Permettre le televersement d'une photo de profil
 - [ ] Sauvegarder la photo dans la base de donnees
 - [ ] Accepter uniquement les formats `jpg` et `png`
 

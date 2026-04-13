@@ -167,6 +167,16 @@ def _build_password_hash(password):
 
     return salt, hashed_password
 
+def _is_supported_avatar_data_url(avatar_data_url):
+    """Valide que l'avatar fourni est au format PNG ou JPG/JPEG."""
+    if not avatar_data_url:
+        return True
+
+    return (
+        avatar_data_url.startswith("data:image/png;base64,")
+        or avatar_data_url.startswith("data:image/jpeg;base64,")
+    )
+
 def _get_status_violation_color(status: str):
     """Retourne une couleur CSS pour un statut de violation donné."""
     status = status.lower()
@@ -584,6 +594,11 @@ def creer_new_user():
         avatar = new_user.get("avatar")
     else:
         avatar = None
+
+    if not _is_supported_avatar_data_url(avatar):
+        return jsonify({
+            "error": "L'avatar doit etre au format JPG ou PNG."
+        }), 400
         
     _get_db().insert_user(new_user,salt,hashed_password,avatar)
     user_id = _get_db().get_user_id_from_email(email)
@@ -616,6 +631,11 @@ def edit_user_profile(user_id):
         }), 400
 
     avatar = data["avatar"] if "avatar" in data else user["avatar"]
+
+    if not _is_supported_avatar_data_url(avatar):
+        return jsonify({
+            "error": "L'avatar doit etre au format JPG ou PNG."
+        }), 400
 
     _get_db().update_user_profile(user_id, nom, prenom, avatar)
 

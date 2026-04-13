@@ -1,5 +1,6 @@
 (function () {
   const MAX_AVATAR_SIZE_BYTES = 1300000;
+  const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png"];
 
   async function readFileAsDataUrl(file) {
     return new Promise((resolve, reject) => {
@@ -22,6 +23,10 @@
         : "";
 
     return `${data.error || fallbackMessage}${details}`;
+  }
+
+  function isSupportedAvatarFile(file) {
+    return Boolean(file && ALLOWED_AVATAR_TYPES.includes(file.type));
   }
 
   // LOGIN
@@ -251,6 +256,15 @@
       let avatar = null;
       const avatarFile = avatarInput.files && avatarInput.files[0];
       if (avatarFile) {
+        if (!isSupportedAvatarFile(avatarFile)) {
+          showFeedbackMessage(
+            "#signin-message",
+            "L'avatar doit être au format JPG ou PNG.",
+            "error",
+          );
+          return;
+        }
+
         if (avatarFile.size > MAX_AVATAR_SIZE_BYTES) {
           showFeedbackMessage(
             "#signin-message",
