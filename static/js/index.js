@@ -229,12 +229,12 @@ $(document).ready(function () {
 
         const $tbody = $("#contravention-table-body");
         $tbody.empty();
-
+        listeContravention.sort((a, b) => b.quantite - a.quantite);
         listeContravention.forEach((contra) => {
           $tbody.append(`
                 <tr class="align-top text-sm text-slate-700 transition hover:bg-slate-50/80">
                     <td class="px-4 py-4 text-slate-600">
-                        <a href="/entreprise/${contra.business_id}">
+                        <a href="/etablissement_details/${contra.business_id}" target="_blank">
                             ${contra.nom}
                         </a>                     
                     </td>

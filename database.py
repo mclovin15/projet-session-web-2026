@@ -270,12 +270,12 @@ GROUP BY
         connection.execute(
             """
             INSERT INTO inspections (
-                adresse, etablissement, ville, date_visite,
+                business_id, adresse, etablissement, ville, date_visite,
                 nom_complet_client, description_prob
-            ) VALUES (?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                # inspection["business_id"], # TODO: voir si on veut garder business_id dans table inspections
+                inspection["business_id"],
                 inspection["adresse"],
                 inspection["etablissement"],
                 inspection["ville"],
@@ -313,7 +313,6 @@ GROUP BY
             SELECT * FROM inspections
             ORDER BY id_inspection ASC
             """
-            # TODO: voir si on veut ordonner par date_visite ou id_inspection (qui est auto-increment) 
         )
         return [dict(row) for row in cursor.fetchall()]
     

@@ -39,6 +39,7 @@ schema = JsonSchema(app)
 DEMANDE_INSPECTION_SCHEMA = {
     "type": "object",
     "properties": {
+        "business_id": {"type": "integer"},
         "etablissement": {"type": "string"},
         "adresse": {"type": "string"},
         "ville": {"type": "string"},
@@ -46,7 +47,7 @@ DEMANDE_INSPECTION_SCHEMA = {
         "nom_complet_client" : {"type": "string"},
         "description_prob" : {"type": "string"}
     },
-    "required": ["etablissement", "adresse", "ville","date_visite","nom_complet_client","description_prob"],
+    "required": ["business_id", "etablissement", "adresse", "ville","date_visite","nom_complet_client","description_prob"],
     "additionalProperties": False
 }
 
@@ -471,9 +472,9 @@ def creer_demande_inspection():
             "error": "La date doit etre au format ISO 8601 YYYYMMDD ou YYYY-MM-DD."
         }), 400
     
-    if(not _get_db().etablissement_exists_by_infos(demande_inspection.get("etablissement"),demande_inspection.get("adresse"),demande_inspection.get("ville"))):
+    if not _get_db().etablissement_exists_by_id(demande_inspection.get("business_id")):
         return jsonify({
-            "error": "Aucun établissement ne correspond aux informations fournies."
+            "error": "Aucun établissement ne correspond au business_id fourni."
         }), 400
     
     _get_db().insert_inspection(demande_inspection)

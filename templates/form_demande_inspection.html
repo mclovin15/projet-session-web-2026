@@ -166,13 +166,12 @@
             event.preventDefault();
 
             const payload = {
+                business_id: Number(businessIdHiddenInput.value),
                 nom_complet_client: document.getElementById("demande-inspection-nom-complet").value.trim(),
                 date_visite: document.getElementById("demande-inspection-date-visite").value,
                 etablissement: etablissementHiddenInput.value,
                 adresse: adresseInput.value,
                 ville: villeInput.value,
-                // TODO: voir si on envoie un business id ou pas, si oui faut le mettre dans le schema validation et dans la db aussi
-                // business_id: businessIdHiddenInput.value,
                 description_prob: document.getElementById("demande-inspection-descriptions").value.trim()
             };
 
@@ -186,6 +185,7 @@
                 payload.etablissement = etablissementHiddenInput.value;
                 payload.adresse = adresseInput.value;
                 payload.ville = villeInput.value;
+                payload.business_id = Number(businessIdHiddenInput.value);
 
                 const response = await fetch("/demande-inspection", {
                     method: "POST",
