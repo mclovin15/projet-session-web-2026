@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="space-y-6">
+   {% with
+   back_url_wanted="/?mode=1"
+   %}
+
+   {% include "_back_button.html"%}
+   {% endwith %}
+
+   <div class="mt-8">
+      {% with
+      search_action=url_for('index'),
+      search_placeholder="Rechercher un établissement, un propriétaire ou une rue",
+      search_input_id="search-mode-1",
+      clear_button_id="clear-mode-1",
+      search_mode="1"
+      %}
+      {% include "_search_bar.html" %}
+      {% endwith %}
+   </div>
+
+   {% if violations %}
+   <div class="space-y-3">
+      {% for violation in violations %}
+      {% include "_violation_compact_card.html" %}
+      {% endfor %}
+   </div>
+   {% else %}
+   <div class="rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center shadow-soft">
+      <p class="text-lg font-semibold text-slate-900">
+         Aucune violation à afficher.
+      </p>
+   </div>
+   {% endif %}
+</section>
+{% endblock %}

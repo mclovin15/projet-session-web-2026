@@ -274,7 +274,7 @@ def index():
     if query and mode == "1":
         violations = _get_db().search_violations(query)
         return render_template(
-            "search_results.html",
+            "default_search_results.html",
             violations=violations,
             query=query,
             mode=mode,

@@ -1,3 +1,6 @@
+# Classe pour représenter un établissement et ses violations
+# Projet Session - INF5190 - 2026
+# Yoan Desjardins - DESY77040109
 from dataclasses import dataclass, field
 from typing import Optional
 
