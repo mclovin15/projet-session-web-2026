@@ -11,7 +11,6 @@ except ImportError:
     from database import Database
     from violation import Violation
 
-
 URL = (
     "https://data.montreal.ca/dataset/"
     "05a9e718-6810-4e73-8bb9-5955efeb91a0/resource/"
@@ -22,7 +21,6 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0",
     "Accept": "text/csv,*/*",
 }
-
 
 def update_violations():
     db = Database()

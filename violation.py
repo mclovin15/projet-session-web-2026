@@ -101,6 +101,7 @@ class Violation:
         )
         
     def to_dict(self):
+        """Convertit l'instance de Violation en dictionnaire"""
         return {
             "id_poursuite": self.id_poursuite,
             "business_id": self.business_id,

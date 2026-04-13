@@ -86,7 +86,7 @@
 <script>
     window.watchListPageData = {
         userId: {{ connected_user_id | tojson }},
-        watchedBusinesses: { { watched_businesses | default ([], true) | tojson } }
+        watchedBusinesses: {{ watched_businesses | default ([], true) | tojson }}
     };
 </script>
 <script src="{{ url_for('static', filename='js/watchlist.js') }}"></script>

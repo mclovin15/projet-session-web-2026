@@ -33,6 +33,7 @@ class Etablissement:
     
     @classmethod
     def from_db_row(cls, row):
+        """Construit un etablissement a partir la db."""
         return cls(
             nom=row["etablissement"],
             proprietaire=row["proprietaire"],
@@ -47,6 +48,7 @@ class Etablissement:
         
     @classmethod
     def from_distinct_select(cls, row):
+        """Construit un etablissement a partir d'une selection distincte."""
         return cls(
             nom=row["etablissement"],
             business_id=int(row["business_id"]),

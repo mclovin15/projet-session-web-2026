@@ -174,7 +174,8 @@ class Database:
         """Recherche des violations avec le nombre de violations"""
         connection = self.get_connection()
         cursor = connection.execute(
-        """SELECT
+        """
+        SELECT
             business_id,
             etablissement,
             adresse,
@@ -218,30 +219,30 @@ class Database:
         connection = self.get_connection()
         cursor = connection.execute(
         """
-SELECT
-    business_id,
-    etablissement,
-    adresse,
-    ville,
-    proprietaire,
-    categorie,
-    COUNT(*) AS nombre_violations,
-    SUM(montant) AS montant_total
-FROM violations
-WHERE business_id = ?
-GROUP BY
-    business_id,
-    etablissement,
-    adresse,
-    ville,
-    proprietaire,
-    categorie;
+        SELECT
+            business_id,
+            etablissement,
+            adresse,
+            ville,
+            proprietaire,
+            categorie,
+            COUNT(*) AS nombre_violations,
+            SUM(montant) AS montant_total
+        FROM violations
+        WHERE business_id = ?
+        GROUP BY
+            business_id,
+            etablissement,
+            adresse,
+            ville,
+            proprietaire,
+            categorie;
 
         """, (business_id,))
         rows = cursor.fetchall()
         
         return [dict(row) for row in rows]
-    # TODO: voir si j'utilise cette meta
+
     def etablissement_exists_by_id(self, business_id: int):
         """Verifie si un etablissement existe deja par son business_id"""
         connection = self.get_connection()
@@ -414,6 +415,7 @@ GROUP BY
         )
         data = cursor.fetchone()
         if data is None or not data[0]:
+            # Avatar par defaut
             return "https://upload.wikimedia.org/wikipedia/commons/5/59/User-avatar.svg"
         else:
             return data[0]

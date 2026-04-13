@@ -1,3 +1,4 @@
+# Contient de la logique de l'application Flask, des routes et de la configuration du scheduler
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 import base64
@@ -28,10 +29,11 @@ except ImportError:
     from database import Database
 
 app = Flask(__name__, static_url_path="", static_folder="static")
-app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB upload limit
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 
 
 scheduler = BackgroundScheduler(timezone="America/Toronto")
 schema = JsonSchema(app)
+
 
 #############################
 ######### SCHEMA ###########
@@ -118,6 +120,7 @@ WATCHED_BUSINESS_LIST_SCHEMA = {
     "required": ["liste_etablissements_surveiller"],
     "additionalProperties": False
 }
+
 
 #############################
 ######### VALIDATION ########
@@ -208,6 +211,7 @@ def is_iso_extended_date(date_str: str) -> bool:
         return True
     except ValueError:
         return False
+    
 def is_date_iso(date_str: str) -> bool:
     """Permet savoir si une date respecte le format ISO 8601 YYYY-MM-DD."""
     return is_iso_extended_date(date_str)
@@ -264,7 +268,6 @@ def inject_auth_state():
 #############################
 ######### ROUTES ############
 #############################
-
 @app.route("/", methods=["GET"])
 def index():
     """Affiche page accueil avec formulaire de recherche."""
@@ -288,11 +291,16 @@ def index():
 
 @app.route("/etablissement_details/<int:business_id>", methods=["GET"])
 def etablissement_details_page(business_id: int):
-    """API retourne en JSON les details d'un établissement."""
+    """Remplis la page pour les details d'un établissement."""
     etablissement_summary = _get_db().return_business_summary(business_id)
-    # if not etablissement_summary   :
-    #     return jsonify({"error": "Établissement non trouvé."}), 404
+    
+    if not etablissement_summary:
+        return render_template("404.html", message="Établissement non trouvé.")
     violation_list = _get_db().return_all_violations_of_etablissement(business_id)
+    
+    if not violation_list:
+        return render_template("404.html", message="Aucune violation trouvée pour cet établissement.")
+    
     return render_template("business_details.html", etablissement_details=etablissement_summary[0], violations=violation_list)
 
 @app.route("/doc", methods=["GET"])
@@ -317,7 +325,6 @@ def demande_inspection():
 def login_page():
     """Affiche la page login."""
     if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
-        # Deja connecte
         return redirect(url_for("index"))
 
     return render_template("login.html")
@@ -326,7 +333,6 @@ def login_page():
 def signin_page():
     """Affiche la page d\'inscription."""
     if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
-        # Deja connecte
         return redirect(url_for("index"))
 
     liste_etablissement = _get_db().return_all_etablissements()
@@ -390,8 +396,6 @@ def contrevenants():
         }), 400    
         
     try: 
-        # TODO: faire meilleur verif format date
-        # on check si on recoit format YYYY-MM-DD,si oui on convertit
         if(is_iso_extended_date(date_au)):
             date_au = iso_date_to_basic(date_au)
         else:
@@ -446,6 +450,7 @@ def violations_par_etablissement_xml():
 @app.route("/violations_par_etablissement.csv", methods=["GET"])
 def violations_par_etablissement_csv():
     """ API retourne en CSV les violations par établissement."""
+    
     violations = _get_db().return_all_etablissement_with_nb_violations()
     output = io.StringIO()
     writer = csv.writer(output)
@@ -464,7 +469,6 @@ def violations_par_etablissement_csv():
         mimetype="text/csv; charset=utf-8",
     )
 
-# TODO: revoir comment je fais mon post
 @app.route("/demande-inspection", methods=["POST"])
 @schema.validate(DEMANDE_INSPECTION_SCHEMA)
 def creer_demande_inspection():
@@ -515,6 +519,7 @@ def supprimer_demande_inspection(id_inspection):
 @schema.validate(USER_LOGIN_SCHEMA)
 def connect_user():
     """API pour connecter un utilisateur."""
+    
     credentials = request.get_json()
     email = credentials.get("email")
     password = credentials.get("password")
@@ -548,12 +553,14 @@ def connect_user():
 @app.route("/logout", methods=["DELETE"])
 def logout_user():
     """API pour deconnecter un utilisateur."""
+    
     id_session = session.get("id")
     if not id_session:
         return jsonify({
             "error": "Aucune session active trouvee."
         }), 404
     
+    # Terminer la session
     _end_session(id_session)
 
     return jsonify({"success": True,"message": "Déconnexion réussie."}), 200
@@ -641,7 +648,7 @@ def edit_user_profile(user_id):
 @app.route("/user_watch_list/<int:user_id>", methods=["PATCH"])
 @schema.validate(WATCHED_BUSINESS_LIST_SCHEMA)
 def edit_user_watch_list(user_id):
-    """Permet d'ajouter ou de supprimer un établissement de la liste de surveillance d'un utilisateur."""
+    """API pour modifier la liste de surveillance d'un utilisateur."""
     user = _get_db().get_user_profile_by_id(user_id)
     if user is None:
         return jsonify({
@@ -703,10 +710,10 @@ def edit_user_watch_list(user_id):
         "updated_ids": updated_ids,
     }), 200
 
+
 #############################
 ######## SCHEDULER ##########
 #############################
-
 def sync_violations_job():
     """Synchroniser les violations. """
     with app.app_context():
@@ -727,15 +734,6 @@ scheduler.add_job(
     replace_existing=True,
     misfire_grace_time=3600, # autoriser une execution jusqu'à 1h après l'heure
 )
-# TODO: enlever 
-# scheduler.add_job(
-#     func=sync_violations_job,
-#     trigger="interval",
-#     minutes=1,
-#     id="daily_violation_sync",
-#     replace_existing=True,
-# )
-
 # TODO: revoir à la remise si on l'enlève
 # Evite de lancer deux schedulers avec le reloader de Flask en debug
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
