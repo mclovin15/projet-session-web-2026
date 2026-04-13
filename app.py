@@ -209,14 +209,8 @@ def is_iso_extended_date(date_str: str) -> bool:
     except ValueError:
         return False
 def is_date_iso(date_str: str) -> bool:
-    """ Permet savoir si format est YYYYMMDD """
-    try:
-        datetime.strptime(date_str, "%Y%m%d")
-        return True
-    except ValueError:
-        if(is_iso_extended_date(date_str)):
-            return True
-        return False
+    """Permet savoir si une date respecte le format ISO 8601 YYYY-MM-DD."""
+    return is_iso_extended_date(date_str)
 
 def iso_date_to_basic(date_str: str) -> str:
     """Convertit YYYY-MM-DD en YYYYMMDD."""
@@ -477,9 +471,9 @@ def creer_demande_inspection():
     """API pour creer une demande inspection. Validation date et existence de l'établissement."""
     
     demande_inspection = request.get_json()
-    if not is_date_iso(demande_inspection.get("date_visite")):
+    if not is_iso_extended_date(demande_inspection.get("date_visite")):
         return jsonify({
-            "error": "La date doit etre au format ISO 8601 YYYYMMDD ou YYYY-MM-DD."
+            "error": "La date doit etre au format ISO 8601 YYYY-MM-DD."
         }), 400
     
     if not _get_db().etablissement_exists_by_id(demande_inspection.get("business_id")):

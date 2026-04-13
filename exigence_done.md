@@ -170,8 +170,8 @@
 - [x] Offrir une option d'authentification
 - [x] Apres authentification, offrir une page pour modifier la liste des etablissements a surveiller
 - [x] Permettre le televersement d'une photo de profil
-- [ ] Sauvegarder la photo dans la base de donnees
-- [ ] Accepter uniquement les formats `jpg` et `png`
+- [x] Sauvegarder la photo dans la base de donnees
+- [x] Accepter uniquement les formats `jpg` et `png`
 
 ### E3 - Courriel automatique aux utilisateurs interesses - 5 XP
 
