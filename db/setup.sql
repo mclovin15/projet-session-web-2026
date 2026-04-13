@@ -38,3 +38,9 @@ create table users (
    hash TEXT,
    status BOOLEAN NOT NULL DEFAULT TRUE
 );
+
+create table sessions (
+   id INTEGER PRIMARY KEY AUTOINCREMENT,
+   id_session TEXT,
+   email TEXT
+);

@@ -33,6 +33,9 @@ class Database:
         if self.connection is not None:
             self.connection.close()
 
+
+    ### VIOLATIONS ###
+    
     def insert_violation(self, violation: Violation):
         """Insere une nouvelle violation"""
 
@@ -201,6 +204,8 @@ class Database:
         )
         return cursor.fetchone() is not None
     
+    ### INSPECTION ###
+
     def insert_inspection(self, inspection: dict):
         """Insere une nouvelle demande d'inspection"""
 
@@ -254,6 +259,8 @@ class Database:
             # TODO: voir si on veut ordonner par date_visite ou id_inspection (qui est auto-increment) 
         )
         return [dict(row) for row in cursor.fetchall()]
+    
+    ### USER ###
 
     def insert_user(self, user: dict,salt,hashed_password):
         """Insere un nouveau user"""
@@ -290,3 +297,67 @@ class Database:
         )
         row = cursor.fetchone()
         return  row is not None
+    
+    def get_user_id_from_email(self, email):
+        """Retourne l'identifiant utilisateur associe a un courriel."""
+        cursor = self.get_connection().cursor()
+        cursor.execute(("select id from users where email=?"), (email,))
+        data = cursor.fetchone()
+        if data is None:
+            return None
+        else:
+            return data[0]
+
+    def get_user_login_info(self, email):
+        """Retourne le salt, le hash et l'id pour l'authentification."""
+        cursor = self.get_connection().cursor()
+        cursor.execute(
+            ("select salt, hash,id from users where email=?"),
+            (email,),
+        )
+        user = cursor.fetchone()
+        if user is None:
+            return None
+        else:
+            return user[0], user[1], user[2]
+
+    def get_user_profile_by_id(self, user_id):
+        """Recupere les informations de profil d'un utilisateur."""
+        cursor = self.get_connection().cursor()
+        cursor.execute(
+            ("select nom, prenom,email,avatar,status,liste_etablissements_surveiller from users where id=?"),
+            (user_id,),
+        )
+        user_info = cursor.fetchone()
+        if user_info is None:
+            return None
+        else:
+            return user_info
+
+    
+    ### SESSIONS ###
+    
+    def user_is_log_in(self, id_session):
+        """Indique si un id de session correspond a une session valide."""
+        return self.get_session_email(id_session) is not None
+    
+    def save_session(self, id_session, email):
+        """Enregistre une nouvelle session pour un utilisateur."""
+        connection = self.get_connection()
+        connection.execute(
+            (
+                "insert into sessions(id_session, email) "
+                "values(?, ?)"
+            ),
+            (id_session, email),
+        )
+        connection.commit()
+
+    def delete_session(self, id_session):
+        """Supprime une session a partir de son identifiant."""
+        connection = self.get_connection()
+        connection.execute(
+            ("delete from sessions where id_session=?"),
+            (id_session,),
+        )
+        connection.commit()
