@@ -18,13 +18,15 @@ from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 try:
     from .update_violations import update_violations
     from .database import Database
+    from .config import Config
 except ImportError:
+    from config import Config
     from update_violations import update_violations
     from database import Database
 
 
 app = Flask(__name__, static_url_path="", static_folder="static")
-app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 
+app.config.from_object(Config)
 
 scheduler = BackgroundScheduler(timezone="America/Toronto")
 schema = JsonSchema(app)
@@ -730,7 +732,3 @@ scheduler.add_job(
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
     scheduler.start()
     atexit.register(lambda: scheduler.shutdown())
-
-# TODO: ai ->  garde la secret_key en dur dans le code.
-# Le document demande que les éléments de configuration soient dans un fichier de configuration documenté. Ici, ce n’est pas respecté.
-app.secret_key = "GHgQgYj2Yl1HD/WvFawstsVdlNJsNYSa"
