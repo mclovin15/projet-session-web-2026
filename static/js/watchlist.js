@@ -1,8 +1,13 @@
 (function () {
-  const pageData = window.watchListPageData;
-  if (!pageData) {
+  const pageRoot = document.getElementById("watchlist-page");
+  if (!pageRoot) {
     return;
   }
+
+  const pageData = {
+    userId: Number(pageRoot.dataset.userId),
+    watchedBusinesses: JSON.parse(pageRoot.dataset.watchedBusinesses || "[]"),
+  };
 
   const modal = document.querySelector("[data-watchlist-delete-modal]");
   const confirmButton = document.querySelector(

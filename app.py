@@ -334,7 +334,7 @@ def edit_profile_page():
     """Affiche la page de modification du profil."""
     if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
         # Non connecte
-        return render_template("login.html")
+        return render_template("login.html"),403
 
     user_profile = _get_db().get_user_profile_by_id(session.get("user_id"))
     return render_template("edit_profile.html", user_profile=user_profile)
@@ -344,7 +344,7 @@ def render_form_user_watch_list():
     """Affiche la page de modification de la liste d'établissements surveillés."""
     if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
         # Non connecte
-        return render_template("login.html")
+        return render_template("login.html"),403
     liste_etablissement = _get_db().return_all_etablissements()
     watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
     return render_template(
@@ -358,7 +358,7 @@ def user_watch_list():
     """Affiche la page de gestion des établissements surveillés."""
     if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
         # Non connecte
-        return render_template("login.html")
+        return render_template("login.html"),403
     watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
     return render_template("user_watch_list.html", watched_businesses=watched_businesses)
 
@@ -731,4 +731,6 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
     scheduler.start()
     atexit.register(lambda: scheduler.shutdown())
 
+# TODO: ai ->  garde la secret_key en dur dans le code.
+# Le document demande que les éléments de configuration soient dans un fichier de configuration documenté. Ici, ce n’est pas respecté.
 app.secret_key = "GHgQgYj2Yl1HD/WvFawstsVdlNJsNYSa"
