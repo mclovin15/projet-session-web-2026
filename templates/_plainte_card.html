@@ -50,7 +50,12 @@
                     title="Consulter l'établissement {{ plainte.etablissement }}">
                     <i class="fa-solid fa-eye"></i>
                 </a>
-                <button type="button" data-id="{{ plainte.id_inspection }}" id="demande-inspection-delete"
+                <button
+                    type="button"
+                    data-inspection-remove-button
+                    data-id="{{ plainte.id_inspection }}"
+                    data-etablissement="{{ plainte.etablissement }}"
+                    data-adresse="{{ plainte.adresse }}"
                     class="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-100"
                     title="Supprimer la plainte #{{ plainte.id_inspection }}">
                     <i class="fa-solid fa-trash mr-2"></i>
