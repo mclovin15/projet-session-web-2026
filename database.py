@@ -392,6 +392,19 @@ GROUP BY
             return None
         else:
             return dict(user_info) if user_info is not None else None        
+
+    def update_user_profile(self, user_id: int, nom: str, prenom: str, avatar):
+        """Met à jour les informations de profil d'un utilisateur."""
+        connection = self.get_connection()
+        connection.execute(
+            """
+            UPDATE users
+            SET nom = ?, prenom = ?, avatar = ?
+            WHERE id = ?
+            """,
+            (nom, prenom, avatar, user_id),
+        )
+        connection.commit()
         
     def get_avatar_by_userid(self, user_id):
         """Retourne l'avatar d'un utilisateur par son identifiant."""
@@ -410,7 +423,7 @@ GROUP BY
         """Retourne le nom complet d'un utilisateur par son identifiant."""
         cursor = self.get_connection().cursor()
         cursor.execute(
-            ("select nom, prenom from users where id=?"),
+            ("select prenom, nom from users where id=?"),
             (user_id,),
         )
         data = cursor.fetchone()

@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% with back_url_wanted=url_for('index') %}
+{% include "_back_button.html" %}
+{% endwith %}
+
+<section class="mt-4 grid ">
+
+    <article class="rounded-[2rem] bg-white p-8 shadow-soft">
+        <div class="max-w-xl">
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+                Modifier le profil
+            </p>
+            <p class="mt-2 text-base text-slate-600">
+                Les champs sont préremplis avec les informations actuellement enregistrées.
+            </p>
+        </div>
+
+        <form id="edit-profile-form" class="mt-8 flex flex-col gap-5" novalidate>
+            <input type="hidden" id="edit-profile-user-id" value="{{ connected_user_id }}">
+            <input type="hidden" id="edit-profile-current-avatar" value="{{ user_profile.avatar or '' }}">
+
+            <div class="flex flex-col gap-4 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center">
+                <img id="edit-profile-avatar-preview"
+                    src="{{ user_profile.avatar or avatar }}"
+                    alt="Aperçu de l'avatar"
+                    class="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-sm">
+                <div class="flex-1">
+                    <label for="edit-profile-avatar" class="mb-2 block text-sm font-semibold text-slate-700">
+                        Avatar
+                    </label>
+                    <input type="file" id="edit-profile-avatar" accept="image/*"
+                        class="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-full file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200">
+                    <p class="mt-2 text-xs text-slate-500">
+                        PNG, JPG ou GIF. Taille maximale recommandée: 1.3 Mo.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <div>
+                    <label for="edit-profile-prenom" class="mb-2 block text-sm font-semibold text-slate-700">
+                        Prénom
+                    </label>
+                    <input type="text" id="edit-profile-prenom" value="{{ user_profile.prenom }}" required
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary focus:ring-4 focus:ring-sky-100">
+                </div>
+
+                <div>
+                    <label for="edit-profile-nom" class="mb-2 block text-sm font-semibold text-slate-700">
+                        Nom
+                    </label>
+                    <input type="text" id="edit-profile-nom" value="{{ user_profile.nom }}" required
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary focus:ring-4 focus:ring-sky-100">
+                </div>
+            </div>
+
+            <div>
+                <label for="edit-profile-email" class="mb-2 block text-sm font-semibold text-slate-700">
+                    Courriel
+                </label>
+                <input type="email" id="edit-profile-email" value="{{ user_profile.email }}" readonly
+                    class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500 outline-none">
+            </div>
+
+            {% with alert_id="edit-profile-message" %}
+                {% include "_feedback_message.html" %}
+            {% endwith %}
+
+            <div class="pt-2">
+                <button type="submit"
+                    class="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-primary shadow-soft transition hover:bg-slate-700">
+                    Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

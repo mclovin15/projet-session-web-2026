@@ -86,6 +86,17 @@ USER_LOGIN_SCHEMA = {
     "additionalProperties": False
 }
 
+USER_PROFILE_UPDATE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "nom": {"type": "string"},
+        "prenom": {"type": "string"},
+        "avatar": {"type": "string", "format": "data-url"},
+    },
+    "required": ["nom", "prenom"],
+    "additionalProperties": False
+}
+
 WATCHED_BUSINESS_LIST_SCHEMA = {
     "type": "object",
     "properties": {
@@ -323,7 +334,8 @@ def edit_profile_page():
         # Non connecte
         return render_template("login.html")
 
-    return render_template("edit_profile.html")
+    user_profile = _get_db().get_user_profile_by_id(session.get("user_id"))
+    return render_template("edit_profile.html", user_profile=user_profile)
 
 @app.route("/edit_user_watch_list", methods=["GET"])
 def render_form_user_watch_list():
@@ -559,8 +571,6 @@ def creer_new_user():
     for etablissement in liste_etablissements_surveiller:
         business_id = etablissement["business_id"]
         nom = etablissement["etablissement"]
-        adresse = etablissement["adresse"]   
-        # TODO: voir si on vérifie tout les champs
         if not _get_db().etablissement_exists_by_id(business_id):
             return jsonify({
             "error": f"L'établissement {nom} n'existe pas."
@@ -579,6 +589,39 @@ def creer_new_user():
     _start_session(user_id, email)
     
     return jsonify({"success": True,"message": f"L'utilisateur {email} a été créer avec succes."}), 201
+
+@app.route("/user/<int:user_id>", methods=["PATCH"])
+@schema.validate(USER_PROFILE_UPDATE_SCHEMA)
+def edit_user_profile(user_id):
+    """API pour modifier le profil d'un utilisateur connecté."""
+    user = _get_db().get_user_profile_by_id(user_id)
+    if user is None:
+        return jsonify({
+            "error": f"Aucun utilisateur trouvee avec l'id {user_id}."
+        }), 404
+
+    if not _get_db().user_is_log_in(session.get("id"), email=user["email"]):
+        return jsonify({
+            "error": "Vous devez etre connecter pour faire cela."
+        }), 404
+
+    data = request.get_json()
+    nom = data.get("nom", "").strip()
+    prenom = data.get("prenom", "").strip()
+
+    if not nom or not prenom:
+        return jsonify({
+            "error": "Le nom et le prénom sont obligatoires."
+        }), 400
+
+    avatar = data["avatar"] if "avatar" in data else user["avatar"]
+
+    _get_db().update_user_profile(user_id, nom, prenom, avatar)
+
+    return jsonify({
+        "success": True,
+        "message": "Profil mis à jour avec succès."
+    }), 200
 
 @app.route("/user_watch_list/<int:user_id>", methods=["PATCH"])
 @schema.validate(WATCHED_BUSINESS_LIST_SCHEMA)

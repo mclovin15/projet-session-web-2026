@@ -73,7 +73,7 @@
 
 ### A6 - Recherche Ajax par restaurant - 10 XP
 
-- [ ] Ajouter un mode de recherche par nom du restaurant dans l'application de A5
+- [x] Ajouter un mode de recherche par nom du restaurant dans l'application de A5
 - [x] Predeterminer la liste de tous les contrevenants dans une liste deroulante
 - [x] Permettre a l'utilisateur de choisir un restaurant dans la liste
 - [x] Envoyer une requete Ajax vers un service REST dedie
@@ -87,7 +87,7 @@
 - [ ] Stocker l'adresse du destinataire dans un fichier YAML
 
 ### B2 - Publication Twitter - 10 XP
-
+- Liens pour [doc](https://docs.x.com/x-api/posts/create-post)
 - [ ] Publier automatiquement les noms d'etablissements des nouvelles contraventions sur un compte Twitter
 
 ### C1 - Service REST etablissements et nombre d'infractions - 10 XP

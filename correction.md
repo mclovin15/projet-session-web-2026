@@ -15,6 +15,6 @@
 - **C1** : On peut tester cette fonctionnalité en utilisant cette [URL](http://127.0.0.1:5000/violations_par_etablissement).
 - **C2** : On peut tester cette fonctionnalité en utilisant cette [URL](http://127.0.0.1:5000/violations_par_etablissement.xml).
 - **C3** : On peut tester cette fonctionnalité en utilisant cette [URL](http://127.0.0.1:5000/violations_par_etablissement.csv).
-- **D1** : On peut tester cette fonctionnalité en utilisant la page des plaintes et en cliquant le bouton "Nouvelle Plainte" ou avec cette [URL]([http://127.0.0.1:5000/?mode=2](http://127.0.0.1:5000/demande-inspection)). Il faut ensuite remplir le formulaire.
+- **D1** : On peut tester cette fonctionnalité en utilisant la page des plaintes et en cliquant le bouton "Nouvelle Plainte" ou avec cette [URL](http://127.0.0.1:5000/demande-inspection). Il faut ensuite remplir le formulaire.
 - **D2** : Il faut tout d'abord avoir des plaintes existantes et on peut supprimer une plainte en cliquant sur le bouton supprimer à cette [URL](http://127.0.0.1:5000/inspections).
 - **E1** : On peut tester ce service API avec cette [URL](http://127.0.0.1:5000/user)  (POST) avec Postman ou autres. Pour connaître la requête attendu consulter la [doc](http://127.0.0.1:5000/doc/api.html#user_post).
