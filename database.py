@@ -34,8 +34,9 @@ class Database:
             self.connection.close()
 
 
-    ### VIOLATIONS ###
-    
+    #############################
+    ######### VIOLATIONS ########
+    #############################
     def insert_violation(self, violation: Violation):
         """Insere une nouvelle violation"""
 
@@ -170,7 +171,7 @@ class Database:
         return [Violation.from_db_row(row) for row in cursor.fetchall()]
 
     def return_all_etablissement_with_nb_violations(self):
-        """Recherche des violations avec un range donnée"""
+        """Recherche des violations avec le nombre de violations"""
         connection = self.get_connection()
         cursor = connection.execute(
         """SELECT
@@ -186,6 +187,60 @@ class Database:
         
         return [dict(row) for row in rows]
     
+    def return_all_violations_of_etablissement(self, business_id: int):
+        """Recherche des violations avec le nombre de violations"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+        """
+            SELECT
+                id_poursuite,
+                business_id,
+                date_violation,
+                descr,
+                adresse,
+                date_jugement,
+                etablissement,
+                montant,
+                proprietaire,
+                ville,
+                statut,
+                date_statut,
+                categorie
+            FROM violations
+            WHERE business_id = ?
+            ORDER BY date_violation DESC, id_poursuite DESC;
+        """, (business_id,))
+        
+        return [Violation.from_db_row(row) for row in cursor.fetchall()]
+    
+    def return_business_summary(self, business_id: int):
+        """Retourne un résumé des informations d'un établissement par son business_id"""
+        connection = self.get_connection()
+        cursor = connection.execute(
+        """
+SELECT
+    business_id,
+    etablissement,
+    adresse,
+    ville,
+    proprietaire,
+    categorie,
+    COUNT(*) AS nombre_violations,
+    SUM(montant) AS montant_total
+FROM violations
+WHERE business_id = ?
+GROUP BY
+    business_id,
+    etablissement,
+    adresse,
+    ville,
+    proprietaire,
+    categorie;
+
+        """, (business_id,))
+        rows = cursor.fetchall()
+        
+        return [dict(row) for row in rows]
     # TODO: voir si j'utilise cette meta
     def etablissement_exists_by_id(self, business_id: int):
         """Verifie si un etablissement existe deja par son business_id"""
@@ -204,8 +259,10 @@ class Database:
         )
         return cursor.fetchone() is not None
     
-    ### INSPECTION ###
-
+    
+    #############################
+    ######### INSPECTION ########
+    #############################
     def insert_inspection(self, inspection: dict):
         """Insere une nouvelle demande d'inspection"""
 
@@ -260,9 +317,11 @@ class Database:
         )
         return [dict(row) for row in cursor.fetchall()]
     
-    ### USER ###
-
-    def insert_user(self, user: dict,salt,hashed_password):
+    
+#############################
+######### USER ##############
+#############################
+    def insert_user(self, user: dict,salt,hashed_password,avatar):
         """Insere un nouveau user"""
         liste_etablissements_json = json.dumps(user["liste_etablissements_surveiller"])
 
@@ -280,7 +339,7 @@ class Database:
                 user["email"],
                 hashed_password,
                 salt,
-                user["avatar"],
+                avatar,
                 liste_etablissements_json,
                 
             ),
@@ -332,15 +391,78 @@ class Database:
         if user_info is None:
             return None
         else:
-            return user_info
+            return dict(user_info) if user_info is not None else None        
+        
+    def get_avatar_by_userid(self, user_id):
+        """Retourne l'avatar d'un utilisateur par son identifiant."""
+        cursor = self.get_connection().cursor()
+        cursor.execute(
+            ("select avatar from users where id=?"),
+            (user_id,),
+        )
+        data = cursor.fetchone()
+        if data is None or not data[0]:
+            return "https://upload.wikimedia.org/wikipedia/commons/5/59/User-avatar.svg"
+        else:
+            return data[0]
+    
+    def get_author_name_by_userid(self, user_id):
+        """Retourne le nom complet d'un utilisateur par son identifiant."""
+        cursor = self.get_connection().cursor()
+        cursor.execute(
+            ("select nom, prenom from users where id=?"),
+            (user_id,),
+        )
+        data = cursor.fetchone()
+        if data is None:
+            return "Utilisateur inconnu"
+        else:
+            return f"{data[0]} {data[1]}"
+    
+    def get_user_status(self, id):
+        """Retourne le statut actif/inactif d'un utilisateur."""
+        cursor = self.get_connection().cursor()
+        if id is None:
+            return None
+        cursor.execute(("select status from users WHERE id = ?"), (id,))
+        user = cursor.fetchone()
+        if user is None:
+            return None
+        return user["status"]
+    
+    def get_business_watchlist_user(self, user_id: int):
+        """Retourne la liste des établissements surveillés par un utilisateur."""
+        connection = self.get_connection()
+        cursor = connection.execute(
+            "SELECT liste_etablissements_surveiller FROM users WHERE id = ?",
+            (user_id,),
+        )
+        row = cursor.fetchone()
+        if row is None or not row["liste_etablissements_surveiller"]:
+            return []
+        return json.loads(row["liste_etablissements_surveiller"])
+
+    def update_business_watchlist_user(self, user_id: int, watched_businesses: list):
+        """Met à jour la liste des établissements surveillés d'un utilisateur."""
+        connection = self.get_connection()
+        connection.execute(
+            """
+            UPDATE users
+            SET liste_etablissements_surveiller = ?
+            WHERE id = ?
+            """,
+            (json.dumps(watched_businesses), user_id),
+        )
+        connection.commit()
 
     
-    ### SESSIONS ###
-    
-    def user_is_log_in(self, id_session):
+#############################
+######### SESSIONS ##########
+#############################
+    def user_is_log_in(self, id_session, email) -> bool:
         """Indique si un id de session correspond a une session valide."""
-        return self.get_session_email(id_session) is not None
-    
+        return id_session is not None and email is not None and self.get_session_email(id_session) == email
+
     def save_session(self, id_session, email):
         """Enregistre une nouvelle session pour un utilisateur."""
         connection = self.get_connection()
@@ -361,3 +483,31 @@ class Database:
             (id_session,),
         )
         connection.commit()
+
+    def get_session_of_user_by_email(self, email):
+        """Retourne l'id de session actif d'un utilisateur."""
+        cursor = self.get_connection().cursor()
+        cursor.execute(
+            ("select id_session from sessions where email=?"),
+            (email,),
+        )
+        data = cursor.fetchone()
+        if data is None:
+            return None
+        else:
+            return data[0]
+
+    def get_session_email(self, id_session):
+        """Retourne le courriel associe a une session."""
+        if id_session is None:
+            return None
+        cursor = self.get_connection().cursor()
+        cursor.execute(
+            ("select email from sessions where id_session=?"),
+            (id_session,),
+        )
+        data = cursor.fetchone()
+        if data is None:
+            return None
+        else:
+            return data[0]

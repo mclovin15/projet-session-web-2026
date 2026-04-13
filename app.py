@@ -86,6 +86,26 @@ USER_LOGIN_SCHEMA = {
     "additionalProperties": False
 }
 
+WATCHED_BUSINESS_LIST_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "liste_etablissements_surveiller": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "business_id": {"type": "integer"},
+                    "etablissement": {"type": "string"},
+                    "adresse": {"type": "string"}
+                },
+                "required": ["business_id", "etablissement", "adresse"],
+                "additionalProperties": False
+            }
+        }
+    },
+    "required": ["liste_etablissements_surveiller"],
+    "additionalProperties": False
+}
 
 #############################
 ######### VALIDATION ########
@@ -181,7 +201,7 @@ def iso_date_to_basic(date_str: str) -> str:
     return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
 
 def _start_session(user_id, email):
-    """Démarre une session pour un utilisateur donné."""
+    """Démarre une session pour un utilisateur donné."""    
     id_session = uuid.uuid4().hex
     
     _get_db().save_session(id_session, email)
@@ -202,9 +222,25 @@ def _end_session(id_session):
 @app.context_processor
 def inject_auth_state():
     """Fonction utile pour le front-end"""
+    is_logged_in = _get_db().user_is_log_in(session.get("id"),session.get("email"))
+    connected_user_id = session.get("user_id") if is_logged_in else None
+    avatar = _get_db().get_avatar_by_userid(connected_user_id) if connected_user_id else None
+    connected_user_name = (
+        _get_db().get_author_name_by_userid(connected_user_id)
+        if connected_user_id else None
+    )
+
     return {
         "get_categorie_violation_icon": _get_categorie_violation_icon,
         "get_status_violation_color": _get_status_violation_color,
+        "is_logged_in": is_logged_in,
+        "connected_user_id": connected_user_id,
+        "avatar": avatar,
+        "connected_user_name": connected_user_name,
+        "connected_user_email": session.get("email") if is_logged_in else None,
+        "get_avatar_by_userid": _get_db().get_avatar_by_userid,
+        "get_author_name_by_userid": _get_db().get_author_name_by_userid,
+
     }
 
 
@@ -234,6 +270,15 @@ def index():
         
     return render_template("index.html", mode=mode)
 
+@app.route("/etablissement_details/<int:business_id>", methods=["GET"])
+def etablissement_details_page(business_id: int):
+    """API retourne en JSON les details d'un établissement."""
+    etablissement_summary = _get_db().return_business_summary(business_id)
+    # if not etablissement_summary   :
+    #     return jsonify({"error": "Établissement non trouvé."}), 404
+    violation_list = _get_db().return_all_violations_of_etablissement(business_id)
+    return render_template("business_details.html", etablissement_details=etablissement_summary[0], violations=violation_list)
+
 @app.route("/doc", methods=["GET"])
 def doc():
     """Redirige vers la documentation de l'API."""
@@ -257,9 +302,7 @@ def login_page():
     """Affiche la page login."""
     if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
         # Deja connecte
-        return render_template(
-            "index.html"
-        )
+        return redirect(url_for("index"))
 
     return render_template("login.html")
 
@@ -268,10 +311,42 @@ def signin_page():
     """Affiche la page d\'inscription."""
     if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
         # Deja connecte
-        return render_template(
-            "index.html"
-        )
-    return render_template("signin.html")
+        return redirect(url_for("index"))
+
+    liste_etablissement = _get_db().return_all_etablissements()
+    return render_template("signin.html", liste_etablissement=liste_etablissement)
+
+@app.route("/edit_profile", methods=["GET"])
+def edit_profile_page():
+    """Affiche la page de modification du profil."""
+    if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+        # Non connecte
+        return render_template("login.html")
+
+    return render_template("edit_profile.html")
+
+@app.route("/edit_user_watch_list", methods=["GET"])
+def render_form_user_watch_list():
+    """Affiche la page de modification de la liste d'établissements surveillés."""
+    if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+        # Non connecte
+        return render_template("login.html")
+    liste_etablissement = _get_db().return_all_etablissements()
+    watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
+    return render_template(
+        "form_user_watched_businesses.html",
+        liste_etablissement=liste_etablissement,
+        watched_businesses=watched_businesses,
+    )
+
+@app.route("/user_watch_list", methods=["GET"])
+def user_watch_list():
+    """Affiche la page de gestion des établissements surveillés."""
+    if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+        # Non connecte
+        return render_template("login.html")
+    watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
+    return render_template("user_watch_list.html", watched_businesses=watched_businesses)
 
 
 #############################
@@ -453,7 +528,7 @@ def connect_user():
 
     return jsonify({"success": True,"message": "Connexion réussie.","session_id": session.get("id")}), 200
 
-@app.route("/logout", methods=["POST"])
+@app.route("/logout", methods=["DELETE"])
 def logout_user():
     """API pour deconnecter un utilisateur."""
     id_session = session.get("id")
@@ -500,8 +575,75 @@ def creer_new_user():
         avatar = None
         
     _get_db().insert_user(new_user,salt,hashed_password,avatar)
+    user_id = _get_db().get_user_id_from_email(email)
+    _start_session(user_id, email)
+    
     return jsonify({"success": True,"message": f"L'utilisateur {email} a été créer avec succes."}), 201
 
+@app.route("/user_watch_list/<int:user_id>", methods=["PATCH"])
+@schema.validate(WATCHED_BUSINESS_LIST_SCHEMA)
+def edit_user_watch_list(user_id):
+    """Permet d'ajouter ou de supprimer un établissement de la liste de surveillance d'un utilisateur."""
+    user = _get_db().get_user_profile_by_id(user_id)
+    if user is None:
+        return jsonify({
+            "error": f"Aucun utilisateur trouvee avec l'id {user_id}."
+        }), 404
+    if not _get_db().user_is_log_in(session.get("id"),email=user["email"]):
+        # Non connecte
+        return jsonify({
+            "error": f"Vous devez etre connecter pour faire cela."
+            }), 404
+
+    new_watch_list = request.get_json().get("liste_etablissements_surveiller", [])
+    current_watch_list = _get_db().get_business_watchlist_user(user_id)
+
+    # On transformes les listes en dict avec le business_id comme key
+    current_by_id = {
+        etablissement["business_id"]: etablissement
+        for etablissement in current_watch_list
+    }
+    new_by_id = {
+        etablissement["business_id"]: etablissement
+        for etablissement in new_watch_list
+    }
+
+    # On verifie si etablissement existe bien
+    for etablissement in new_watch_list:
+        business_id = etablissement["business_id"]
+        nom = etablissement["etablissement"]
+        if not _get_db().etablissement_exists_by_id(business_id):
+            return jsonify({
+                "error": f"L'établissement {nom} n'existe pas."
+            }), 404
+    # on compare pour voir les changements
+    added_ids = sorted(set(new_by_id) - set(current_by_id))
+    removed_ids = sorted(set(current_by_id) - set(new_by_id))
+
+    # on verifie si les infos des établissements qui sont dans les deux listes ont changé
+    updated_ids = sorted(
+        business_id for business_id in (set(new_by_id) & set(current_by_id))
+        if new_by_id[business_id] != current_by_id[business_id]
+    )
+
+    if not added_ids and not removed_ids and not updated_ids:
+        return jsonify({
+            "success": True,
+            "message": "Aucune modification à enregistrer.",
+            "added_ids": [],
+            "removed_ids": [],
+            "updated_ids": [],
+        }), 200
+
+    _get_db().update_business_watchlist_user(user_id, new_watch_list)
+
+    return jsonify({
+        "success": True,
+        "message": "La liste de surveillance a été modifiée avec succès.",
+        "added_ids": added_ids,
+        "removed_ids": removed_ids,
+        "updated_ids": updated_ids,
+    }), 200
 
 #############################
 ######## SCHEDULER ##########

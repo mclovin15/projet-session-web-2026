@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="h-screen w-fit mx-auto mt-10">
+   
+
+    <article class="rounded-[2rem] bg-white p-8 shadow-soft">
+        <div class="max-w-xl">
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+                Se connecter
+            </p>
+            <p class="mt-2 text-base text-slate-600">
+                Connectez-vous à votre compte pour accéder à vos demandes d'inspection et violations. 
+            </p>
+        </div>
+
+        <form id="login-form" class="mt-8 flex flex-col gap-5" novalidate>
+            <div>
+                <label for="login-email" class="mb-2 block text-sm font-semibold text-slate-700">
+                    Courriel
+                </label>
+                <input type="email" id="login-email" name="email" autocomplete="email" required
+                    placeholder="nom@exemple.com"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-sky-100">
+            </div>
+
+            <div>
+                <label for="login-password" class="mb-2 block text-sm font-semibold text-slate-700">
+                    Mot de passe
+                </label>
+                <input type="password" id="login-password" name="password" autocomplete="current-password" required
+                    placeholder="Votre mot de passe"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-sky-100">
+            </div>
+
+            {% with alert_id="login-message" %}
+                {% include "_feedback_message.html" %}
+            {% endwith %}
+
+            <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                <button type="submit"
+                    class="inline-flex items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-slate-600">
+                    Ouvrir la session
+                </button>
+                <a href="{{ url_for('signin_page') }}" class="text-sm font-semibold text-primary transition hover:text-sky-600">
+                    Créer un compte
+                </a>
+            </div>
+        </form>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

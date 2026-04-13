@@ -1,0 +1,190 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% include "_back_button.html"%}
+
+<section class="mt-2 rounded-[2rem] bg-white p-8 shadow-soft">
+    <div class="mx-auto max-w-4xl">
+        <div class="mb-6">
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+                Ajouter un établissement à surveiller dans votre liste
+            </p>
+            <p class="mt-2 text-base text-slate-600">
+                Choisissez un établissement à surveiller pour recevoir des notifications lorsqu'une nouvelle plainte est
+                déposée contre cet établissement ou lorsqu'une nouvelle violation est trouvée lors d'une inspection.
+                Vous pouvez ajouter autant d'établissements que vous le souhaitez et les retirer de votre liste à tout
+                moment.
+            </p>
+        </div>
+
+        <form id="form-add-watch-list" class="flex flex-col gap-4">
+            <input type="hidden" name="user_id" id="user_id" value="{{ connected_user_id }}">
+
+            <div>
+                <label for="add-watched-business-etablissement" class="mb-2 block text-sm font-semibold text-slate-700">
+                    Établissement
+                </label>
+                <input id="add-watched-business-etablissement" list="add-watched-business-etablissement-options"
+                    autocomplete="off" placeholder="Sélectionner un établissement dans la liste ou taper son nom"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:ring-4 focus:ring-sky-100">
+                <datalist id="add-watched-business-etablissement-options">
+                    {% for etablissement in liste_etablissement %}
+                    {% set etablissement_value = etablissement.nom + ' - ' + etablissement.adresse %}
+                    <option value="{{ etablissement_value }}" data-etablissement="{{ etablissement.nom }}"
+                        data-adresse="{{ etablissement.adresse }}" data-ville="{{ etablissement.ville }}"
+                        data-business_id="{{ etablissement.business_id }}"></option>
+                    {% endfor %}
+                </datalist>
+            </div>
+
+            <input type="hidden" name="etablissement" id="add-watched-business-etablissement-hidden">
+            <input type="hidden" name="adresse" id="add-watched-business-adresse">
+            <input type="hidden" name="business_id" id="add-watched-business-business-id">
+            <div>
+                <label for="add-watched-business-adresse-affichee"
+                    class="mb-2 block text-sm font-semibold text-slate-700">
+                    Adresse de l'établissement
+                </label>
+                <input type="text" id="add-watched-business-adresse-affichee"
+                    class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none"
+                    placeholder="L'adresse sera remplie automatiquement" readonly>
+            </div>
+
+
+            <div class="pt-2">
+                <button type="submit"
+                    class="inline-flex shrink-0 items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-slate-800">
+                    Ajouter à la liste de surveillance
+                </button>
+            </div>
+
+            {% with alert_id="add-watched-business-message-form" %}
+            {% include "_feedback_message.html" %}
+            {% endwith %}
+        </form>
+    </div>
+</section>
+
+<script>
+    const formAddWatchList = document.getElementById("form-add-watch-list");
+    const etablissementInput = document.getElementById("add-watched-business-etablissement");
+    const etablissementHiddenInput = document.getElementById("add-watched-business-etablissement-hidden");
+    const etablissementOptions = Array.from(
+        document.querySelectorAll("#add-watched-business-etablissement-options option")
+    );
+    const adresseInput = document.getElementById("add-watched-business-adresse");
+    const businessIdHiddenInput = document.getElementById("add-watched-business-business-id");
+
+    const adresseAfficheeInput = document.getElementById("add-watched-business-adresse-affichee");
+    const currentWatchedBusinesses = {{ watched_businesses|default([], true)|tojson }};
+
+    function resetEtablissementSelection() {
+        etablissementHiddenInput.value = "";
+        adresseInput.value = "";
+        adresseAfficheeInput.value = "";
+        businessIdHiddenInput.value = "";
+    }
+
+    function syncEtablissementSelection() {
+        const selectedValue = etablissementInput.value.trim();
+        const selectedOption = etablissementOptions.find((option) => option.value === selectedValue);
+
+        if (!selectedOption) {
+            resetEtablissementSelection();
+            return false;
+        }
+
+        etablissementHiddenInput.value = selectedOption.dataset.etablissement || "";
+        const adresse = selectedOption.dataset.adresse || "";
+        const businessId = selectedOption.dataset.business_id || "";
+        adresseInput.value = adresse;
+        adresseAfficheeInput.value = adresse;
+        businessIdHiddenInput.value = businessId;
+        return true;
+    }
+
+    if (etablissementInput && adresseInput && adresseAfficheeInput) {
+        etablissementInput.addEventListener("input", function () {
+            if (!this.value.trim()) {
+                resetEtablissementSelection();
+            }
+        });
+
+        etablissementInput.addEventListener("change", function () {
+            syncEtablissementSelection();
+        });
+    }
+
+    if (formAddWatchList) {
+        formAddWatchList.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            hideFeedbackMessage("#add-watched-business-message-form");
+
+            try {
+                if (!syncEtablissementSelection()) {
+                    throw new Error("Veuillez sélectionner un établissement dans la liste.");
+                }
+
+                const selectedBusiness = {
+                    business_id: parseInt(businessIdHiddenInput.value, 10),
+                    etablissement: etablissementHiddenInput.value.trim(),
+                    adresse: adresseInput.value.trim(),
+                };
+
+                if (!selectedBusiness.business_id || !selectedBusiness.etablissement || !selectedBusiness.adresse) {
+                    throw new Error("Les informations de l'établissement sélectionné sont incomplètes.");
+                }
+
+                const alreadyWatched = currentWatchedBusinesses.some((business) => {
+                    return Number(business.business_id) === selectedBusiness.business_id;
+                });
+
+                if (alreadyWatched) {
+                    throw new Error("Cet établissement est déjà présent dans votre liste de surveillance.");
+                }
+
+                const payload = {
+                    liste_etablissements_surveiller: [
+                        ...currentWatchedBusinesses,
+                        selectedBusiness,
+                    ],
+                };
+
+                const user_id = document.getElementById("user_id").value;
+                const response = await fetch(`/user_watch_list/${user_id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                console.log("response data: ", data);
+                if (!response.ok) {
+                    const erreurs = data.errors ? ` ${data.errors.join(" ")}` : "";
+                    throw new Error((data.error || "Erreur lors de l'envoi de la demande.") + erreurs);
+                }
+
+                showFeedbackMessage(
+                    "#add-watched-business-message-form",
+                    data.message || "Établissement ajouté à la liste de surveillance avec succès.",
+                    "success",
+                    { autoHide: true, delay: 4000 }
+                );
+                formAddWatchList.reset();
+                resetEtablissementSelection();
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('user_watch_list') }}";
+                }, 1000);
+            } catch (error) {
+                showFeedbackMessage(
+                    "#add-watched-business-message-form",
+                    error.message,
+                    "error"
+                );
+            }
+        });
+    }
+</script>
+{% endblock %}
