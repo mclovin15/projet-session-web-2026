@@ -10,7 +10,8 @@ documentation:
       Service REST permettant d'obtenir la liste des contraventions
       entre deux dates, les details d'un établissement et le nombre
       de violations par établissement, ainsi que de creer et supprimer
-      une demande d'inspection et creer un utilisateur.
+      une demande d'inspection, gerer l'authentification et modifier
+      certaines informations d'un utilisateur.
 
 types:
   Violation:
@@ -54,6 +55,7 @@ types:
   DemandeInspection:
     type: object
     properties:
+      business_id: integer
       etablissement: string
       adresse: string
       ville: string
@@ -62,6 +64,7 @@ types:
       description_prob: string
     example:
       {
+        "business_id": 12345,
         "etablissement": "Restaurant ABC",
         "adresse": "123 Rue Test",
         "ville": "Montreal",
@@ -113,6 +116,43 @@ types:
         ]
       }
 
+  UserLogin:
+    type: object
+    properties:
+      email: string
+      password: string
+    example:
+      {
+        "email": "yoan@example.com",
+        "password": "MonMotDePasse123!"
+      }
+
+  UserProfileUpdate:
+    type: object
+    properties:
+      nom: string
+      prenom: string
+      avatar?: string
+    example:
+      {
+        "nom": "Desjardins",
+        "prenom": "Yoan",
+        "avatar": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA"
+      }
+
+  LoginSuccessResponse:
+    type: object
+    properties:
+      success: boolean
+      message: string
+      session_id: string
+    example:
+      {
+        "success": true,
+        "message": "Connexion réussie.",
+        "session_id": "7a1c9f25d5d2405799f0a2601ab23456"
+      }
+
   SuccessResponse:
     type: object
     properties:
@@ -142,6 +182,23 @@ types:
         "errors": [
           "'description_prob' is a required property"
         ]
+      }
+
+  WatchListUpdateResponse:
+    type: object
+    properties:
+      success: boolean
+      message: string
+      added_ids: integer[]
+      removed_ids: integer[]
+      updated_ids: integer[]
+    example:
+      {
+        "success": true,
+        "message": "La liste de surveillance a été modifiée avec succès.",
+        "added_ids": [12345],
+        "removed_ids": [67890],
+        "updated_ids": []
       }
 
 /contrevenants:
@@ -185,6 +242,43 @@ types:
           application/json:
             example:
               { "error": "Établissement non trouvé." }
+
+/login:
+  post:
+    description: Connecte un utilisateur et crée une session active.
+    body:
+      application/json:
+        type: UserLogin
+    responses:
+      200:
+        body:
+          application/json:
+            type: LoginSuccessResponse
+      400:
+        body:
+          application/json:
+            type: ValidationErrorResponse
+      403:
+        body:
+          application/json:
+            type: ErrorResponse
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+
+/logout:
+  delete:
+    description: Déconnecte l'utilisateur actuellement connecté et détruit sa session.
+    responses:
+      200:
+        body:
+          application/json:
+            type: SuccessResponse
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
 
 /violations_par_etablissement:
   get:
@@ -273,6 +367,73 @@ types:
         body:
           application/json:
             type: SuccessResponse
+      400:
+        body:
+          application/json:
+            type: ValidationErrorResponse
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+
+/user/{user_id}:
+  patch:
+    description: Modifie le nom, le prénom et l'avatar d'un utilisateur connecté.
+    uriParameters:
+      user_id:
+        type: integer
+        required: true
+        example: 12
+    body:
+      application/json:
+        type: UserProfileUpdate
+    responses:
+      200:
+        body:
+          application/json:
+            type: SuccessResponse
+      400:
+        body:
+          application/json:
+            type: ValidationErrorResponse
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+
+/user_watch_list/{user_id}:
+  patch:
+    description: Ajoute, retire ou modifie la liste des établissements surveillés d'un utilisateur connecté.
+    uriParameters:
+      user_id:
+        type: integer
+        required: true
+        example: 12
+    body:
+      application/json:
+        type: object
+        properties:
+          liste_etablissements_surveiller: EtablissementSurveille[]
+        example:
+          {
+            "liste_etablissements_surveiller": [
+              {
+                "business_id": 12345,
+                "etablissement": "Restaurant ABC",
+                "adresse": "123 Rue Test"
+              },
+              {
+                "business_id": 67890,
+                "etablissement": "Cafe XYZ",
+                "adresse": "456 Avenue Exemple"
+              }
+            ]
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            type: WatchListUpdateResponse
       400:
         body:
           application/json:
