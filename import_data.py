@@ -1,11 +1,11 @@
 # Script Python pour importer les contraventions depuis un fichier CSV dans une base de données SQLite
+# Sert à peupler la base de données avec les données initiales
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 from database import Database
 from violation import Violation
 import csv
 from urllib.request import Request,urlopen
-
 
 db = Database()
 connection = db.get_connection()

@@ -1,17 +1,15 @@
 # Contient de la logique de l'application Flask, des routes et de la configuration du scheduler
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
-import base64
 import csv
 import hashlib
 import io
 import uuid
-import json
 import atexit
 import os
 import xml.etree.ElementTree as ET
 
-from flask import Flask,abort,flash, g, redirect,render_template,request,session,url_for,jsonify, Response
+from flask import Flask, g, redirect,render_template,request,session,url_for,jsonify, Response
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from flask_json_schema import JsonSchema, JsonValidationError
@@ -19,14 +17,11 @@ from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 
 try:
     from .update_violations import update_violations
-except ImportError:
-    from update_violations import update_violations
-
-
-try:
     from .database import Database
 except ImportError:
+    from update_violations import update_violations
     from database import Database
+
 
 app = Flask(__name__, static_url_path="", static_folder="static")
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 
@@ -212,10 +207,6 @@ def is_iso_extended_date(date_str: str) -> bool:
     except ValueError:
         return False
     
-def is_date_iso(date_str: str) -> bool:
-    """Permet savoir si une date respecte le format ISO 8601 YYYY-MM-DD."""
-    return is_iso_extended_date(date_str)
-
 def iso_date_to_basic(date_str: str) -> str:
     """Convertit YYYY-MM-DD en YYYYMMDD."""
     return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")

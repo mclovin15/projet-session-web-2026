@@ -1,9 +1,7 @@
 # Encapsule l'acces SQLite à la BD
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
-import datetime
 import sqlite3
-import uuid
 import json
 
 try:
@@ -497,19 +495,6 @@ class Database:
             (id_session,),
         )
         connection.commit()
-
-    def get_session_of_user_by_email(self, email):
-        """Retourne l'id de session actif d'un utilisateur."""
-        cursor = self.get_connection().cursor()
-        cursor.execute(
-            ("select id_session from sessions where email=?"),
-            (email,),
-        )
-        data = cursor.fetchone()
-        if data is None:
-            return None
-        else:
-            return data[0]
 
     def get_session_email(self, id_session):
         """Retourne le courriel associe a une session."""

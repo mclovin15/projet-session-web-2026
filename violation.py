@@ -4,7 +4,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-
 @dataclass(slots=True)
 class Violation:
     id_poursuite: int
@@ -117,7 +116,6 @@ class Violation:
             "date_statut": self.formatted_date_statut,
             "categorie": self.categorie,
         }
-
 
     @property
     def formatted_date_violation(self) -> str:

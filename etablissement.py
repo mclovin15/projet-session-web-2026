@@ -19,33 +19,12 @@ class Etablissement:
     categorie: Optional[str] = None
     montantTotal: float = 0.0
     violations: list[Violation] = field(default_factory=list)
-    
-
-    def add_violation(self, violation: Violation) -> None:
-        self.violations.append(violation)
-        
-    def delete_violation(self, id_poursuite: int) -> None:
-        self.violations = [v for v in self.violations if v.id_poursuite != id_poursuite]
-            
+              
     @property
     def nombre_violations(self) -> int:
+        """Retourne le nombre de violations"""
         return len(self.violations)
     
-    @classmethod
-    def from_db_row(cls, row):
-        """Construit un etablissement a partir la db."""
-        return cls(
-            nom=row["etablissement"],
-            proprietaire=row["proprietaire"],
-            ville=row["ville"],
-            categorie=row["categorie"],
-            montantTotal=0.0,
-            
-            business_id=int(row["business_id"]),
-            adresse=row["adresse"],
-            violations=[],
-        )
-        
     @classmethod
     def from_distinct_select(cls, row):
         """Construit un etablissement a partir d'une selection distincte."""
