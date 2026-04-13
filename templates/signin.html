@@ -11,7 +11,8 @@
                 Créer un compte pour surveiller vos établissements
             </h1>
             <p class="mt-4 text-base leading-7 text-slate-600">
-                Vous pouvez sélectionner les établissements que vous souhaitez surveiller dès la création de votre compte ou les ajouter plus tard dans votre profil.
+                Vous pouvez sélectionner les établissements que vous souhaitez surveiller dès la création de votre
+                compte ou les ajouter plus tard dans votre profil.
             </p>
         </div>
 
@@ -66,8 +67,7 @@
                 </div>
 
                 <div>
-                    <label for="signin-password-confirmation"
-                        class="mb-2 block text-sm font-semibold text-slate-700">
+                    <label for="signin-password-confirmation" class="mb-2 block text-sm font-semibold text-slate-700">
                         Confirmer le mot de passe
                     </label>
                     <input type="password" id="signin-password-confirmation" autocomplete="new-password" required
@@ -78,12 +78,13 @@
             <div class="rounded-[1.75rem] border border-slate-200 bg-slate-100 p-5">
                 <div class="flex flex-col gap-4">
                     <div>
-                        <label for="signin-etablissement-search" class="mb-2 block text-sm font-semibold text-slate-700">
+                        <label for="signin-etablissement-search"
+                            class="mb-2 block text-sm font-semibold text-slate-700">
                             Établissements à surveiller
                         </label>
                         <div class="flex flex-col gap-3 md:flex-row">
-                            <input id="signin-etablissement-search" list="signin-etablissement-options" autocomplete="off"
-                                placeholder="Sélectionner un établissement dans la liste"
+                            <input id="signin-etablissement-search" list="signin-etablissement-options"
+                                autocomplete="off" placeholder="Sélectionner un établissement dans la liste"
                                 class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-sky-100">
                             <button type="button" id="signin-add-etablissement"
                                 class="inline-flex shrink-0 items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100">
@@ -93,12 +94,9 @@
                         <datalist id="signin-etablissement-options">
                             {% for etablissement in liste_etablissement %}
                             {% set etablissement_value = etablissement.nom + ' - ' + etablissement.adresse %}
-                            <option
-                                value="{{ etablissement_value }}"
-                                data-business_id="{{ etablissement.business_id }}"
-                                data-etablissement="{{ etablissement.nom }}"
-                                data-adresse="{{ etablissement.adresse }}"
-                            ></option>
+                            <option value="{{ etablissement_value }}" data-business_id="{{ etablissement.business_id }}"
+                                data-etablissement="{{ etablissement.nom }}" data-adresse="{{ etablissement.adresse }}">
+                            </option>
                             {% endfor %}
                         </datalist>
                     </div>
@@ -118,7 +116,7 @@
             </div>
 
             {% with alert_id="signin-message" %}
-                {% include "_feedback_message.html" %}
+            {% include "_feedback_message.html" %}
             {% endwith %}
 
             <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
@@ -126,7 +124,8 @@
                     class="inline-flex items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-slate-800">
                     Créer le compte
                 </button>
-                <a href="{{ url_for('login_page') }}" class="text-sm font-semibold text-primary transition hover:text-sky-600">
+                <a href="{{ url_for('login_page') }}"
+                    class="text-sm font-semibold text-primary transition hover:text-sky-600">
                     Déjà inscrit ? Se connecter
                 </a>
             </div>

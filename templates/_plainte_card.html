@@ -1,5 +1,4 @@
-<article
-    id="plainte-{{ plainte.id_inspection }}"
+<article id="plainte-{{ plainte.id_inspection }}"
     class="mt-5 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:border-slate-300 hover:shadow-soft">
     <div
         class="flex flex-col gap-3 xl:grid xl:grid-cols-[minmax(0,2.3fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,1.1fr)] xl:items-start">
@@ -51,14 +50,13 @@
                     title="Consulter l'établissement {{ plainte.etablissement }}">
                     <i class="fa-solid fa-eye"></i>
                 </a>
-                    <button type="button" data-id="{{ plainte.id_inspection }}" 
-                        id="demande-inspection-delete"
-                        class="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-100"
-                         title="Supprimer la plainte #{{ plainte.id_inspection }}">
-                        <i class="fa-solid fa-trash mr-2"></i>
-                        Supprimer
-                    </button>
-                    
+                <button type="button" data-id="{{ plainte.id_inspection }}" id="demande-inspection-delete"
+                    class="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-100"
+                    title="Supprimer la plainte #{{ plainte.id_inspection }}">
+                    <i class="fa-solid fa-trash mr-2"></i>
+                    Supprimer
+                </button>
+
             </div>
         </div>
     </div>

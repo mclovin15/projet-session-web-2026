@@ -16,7 +16,6 @@ $(document).ready(function () {
   $("#search-date-tab").hide();
   $("#search-resto-section").hide();
   $("#resto-error").hide();
-  // hideFeedbackMessage("#demande-inspection-message");
 
   $("#clear-restaurant-select").on("click", function () {
     $("#restaurant-select").val("");
@@ -25,7 +24,6 @@ $(document).ready(function () {
   });
 
   $("#demande-inspection-delete").on("click", function () {
-    
     const idInspection = $(this).data("id");
     if (!confirm(`Supprimer la plainte #${idInspection} ?`)) {
       return;
@@ -42,21 +40,25 @@ $(document).ready(function () {
         $(`#plainte-${idInspection}`).fadeOut(200, function () {
           $(this).remove();
         });
-        setTimeout(() => {  
+        setTimeout(() => {
           window.location.reload();
         }, 800);
-        
       },
       error: function (xhr) {
         const errorMessage =
           xhr.responseJSON && xhr.responseJSON.error
             ? xhr.responseJSON.error
             : "Une erreur est survenue lors de la suppression.";
-        showFeedbackMessage("#demande-inspection-message", errorMessage, "error", {
-          autoHide: true,
-          delay: 4000,
-        });
-      }
+        showFeedbackMessage(
+          "#demande-inspection-message",
+          errorMessage,
+          "error",
+          {
+            autoHide: true,
+            delay: 4000,
+          },
+        );
+      },
     });
   });
 

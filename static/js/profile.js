@@ -8,9 +8,13 @@
 
   const userIdInput = document.getElementById("edit-profile-user-id");
   const avatarInput = document.getElementById("edit-profile-avatar");
-  const currentAvatarInput = document.getElementById("edit-profile-current-avatar");
+  const currentAvatarInput = document.getElementById(
+    "edit-profile-current-avatar",
+  );
   const avatarPreview = document.getElementById("edit-profile-avatar-preview");
-  const sidePreview = document.getElementById("edit-profile-avatar-preview-side");
+  const sidePreview = document.getElementById(
+    "edit-profile-avatar-preview-side",
+  );
   const prenomInput = document.getElementById("edit-profile-prenom");
   const nomInput = document.getElementById("edit-profile-nom");
 
@@ -134,7 +138,9 @@
       const data = await response.json();
       if (!response.ok) {
         const details = data.errors ? ` ${data.errors.join(" ")}` : "";
-        throw new Error((data.error || "Erreur lors de la mise à jour du profil.") + details);
+        throw new Error(
+          (data.error || "Erreur lors de la mise à jour du profil.") + details,
+        );
       }
 
       if (payload.avatar) {

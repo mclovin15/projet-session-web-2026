@@ -1,5 +1,4 @@
 (function ($) {
-  // TODO: revoir si je le garde commeci 
   const FEEDBACK_STYLES = {
     success: {
       container: "border-green-200 bg-green-50 text-green-800",
@@ -51,7 +50,12 @@
     $icon.removeClass(ALL_ICON_CLASSES).addClass(style.icon);
   }
 
-  window.showFeedbackMessage = function (target, message, type = "info", options = {}) {
+  window.showFeedbackMessage = function (
+    target,
+    message,
+    type = "info",
+    options = {},
+  ) {
     const $message = getMessageElement(target);
 
     if (!$message.length) {

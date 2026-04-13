@@ -35,23 +35,15 @@
                 <label for="demande-inspection-etablissement" class="mb-2 block text-sm font-semibold text-slate-700">
                     Établissement
                 </label>
-                <input
-                    id="demande-inspection-etablissement"
-                    list="demande-inspection-etablissement-options"
-                    autocomplete="off"
-                    placeholder="Sélectionner un établissement dans la liste ou taper son nom"
-                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:ring-4 focus:ring-sky-100"
-                >
+                <input id="demande-inspection-etablissement" list="demande-inspection-etablissement-options"
+                    autocomplete="off" placeholder="Sélectionner un établissement dans la liste ou taper son nom"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-primary focus:ring-4 focus:ring-sky-100">
                 <datalist id="demande-inspection-etablissement-options">
                     {% for etablissement in liste_etablissement %}
                     {% set etablissement_value = etablissement.nom + ' - ' + etablissement.adresse %}
-                    <option
-                        value="{{ etablissement_value }}"
-                        data-etablissement="{{ etablissement.nom }}"
-                        data-adresse="{{ etablissement.adresse }}"
-                        data-ville="{{ etablissement.ville }}"
-                        data-business_id="{{ etablissement.business_id }}"
-                    ></option>
+                    <option value="{{ etablissement_value }}" data-etablissement="{{ etablissement.nom }}"
+                        data-adresse="{{ etablissement.adresse }}" data-ville="{{ etablissement.ville }}"
+                        data-business_id="{{ etablissement.business_id }}"></option>
                     {% endfor %}
                 </datalist>
             </div>
@@ -98,14 +90,13 @@
             </div>
 
             {% with alert_id="demande-inspection-message-form" %}
-                {% include "_feedback_message.html" %}
+            {% include "_feedback_message.html" %}
             {% endwith %}
         </form>
     </div>
 </section>
 
 <script>
-    // TODO: voir si je le mets dans index.js et si je le mets en jquery
     const formDemandeInspection = document.getElementById("form-demande-inspection");
     const etablissementInput = document.getElementById("demande-inspection-etablissement");
     const etablissementHiddenInput = document.getElementById("demande-inspection-etablissement-hidden");

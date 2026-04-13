@@ -21,10 +21,9 @@
             <input type="hidden" id="edit-profile-user-id" value="{{ connected_user_id }}">
             <input type="hidden" id="edit-profile-current-avatar" value="{{ user_profile.avatar or '' }}">
 
-            <div class="flex flex-col gap-4 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center">
-                <img id="edit-profile-avatar-preview"
-                    src="{{ user_profile.avatar or avatar }}"
-                    alt="Aperçu de l'avatar"
+            <div
+                class="flex flex-col gap-4 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center">
+                <img id="edit-profile-avatar-preview" src="{{ user_profile.avatar or avatar }}" alt="Aperçu de l'avatar"
                     class="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-sm">
                 <div class="flex-1">
                     <label for="edit-profile-avatar" class="mb-2 block text-sm font-semibold text-slate-700">
@@ -65,7 +64,7 @@
             </div>
 
             {% with alert_id="edit-profile-message" %}
-                {% include "_feedback_message.html" %}
+            {% include "_feedback_message.html" %}
             {% endwith %}
 
             <div class="pt-2">

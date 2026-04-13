@@ -14,16 +14,11 @@
                   clip-rule="evenodd" />
             </svg>
          </span>
-         <input
-            id="{{ search_input_id | default('global-search') }}"
-            name="query"
-            type="search"
+         <input id="{{ search_input_id | default('global-search') }}" name="query" type="search"
             value="{{ search_value | default(request.args.get('query', '')) }}"
             placeholder="{{ search_placeholder | default('Rechercher un établissement, un propriétaire ou une rue') }}"
             class="w-full rounded-full border border-slate-200 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100">
-         <button
-            id="{{ clear_button_id | default('clear-global-search') }}"
-            type="button"
+         <button id="{{ clear_button_id | default('clear-global-search') }}" type="button"
             aria-label="Vider la recherche"
             class="absolute inset-y-0 right-3 my-auto hidden h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
             <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -32,8 +27,7 @@
             </svg>
          </button>
       </div>
-      <button
-         type="submit"
+      <button type="submit"
          class="inline-flex shrink-0 items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200">
          Rechercher
       </button>

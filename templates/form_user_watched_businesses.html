@@ -76,7 +76,7 @@
     const businessIdHiddenInput = document.getElementById("add-watched-business-business-id");
 
     const adresseAfficheeInput = document.getElementById("add-watched-business-adresse-affichee");
-    const currentWatchedBusinesses = {{ watched_businesses|default([], true)|tojson }};
+    const currentWatchedBusinesses = {{ watched_businesses|default ([], true) | tojson }};
 
     function resetEtablissementSelection() {
         etablissementHiddenInput.value = "";

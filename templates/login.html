@@ -2,7 +2,6 @@
 
 {% block content %}
 <section class="h-screen w-fit mx-auto mt-10">
-   
 
     <article class="rounded-[2rem] bg-white p-8 shadow-soft">
         <div class="max-w-xl">
@@ -10,7 +9,7 @@
                 Se connecter
             </p>
             <p class="mt-2 text-base text-slate-600">
-                Connectez-vous à votre compte pour accéder à vos demandes d'inspection et violations. 
+                Connectez-vous à votre compte pour accéder à vos demandes d'inspection et violations.
             </p>
         </div>
 
@@ -34,7 +33,7 @@
             </div>
 
             {% with alert_id="login-message" %}
-                {% include "_feedback_message.html" %}
+            {% include "_feedback_message.html" %}
             {% endwith %}
 
             <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
@@ -42,7 +41,8 @@
                     class="inline-flex items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-slate-600">
                     Ouvrir la session
                 </button>
-                <a href="{{ url_for('signin_page') }}" class="text-sm font-semibold text-primary transition hover:text-sky-600">
+                <a href="{{ url_for('signin_page') }}"
+                    class="text-sm font-semibold text-primary transition hover:text-sky-600">
                     Créer un compte
                 </a>
             </div>
