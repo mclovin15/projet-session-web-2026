@@ -49,7 +49,7 @@ DEMANDE_INSPECTION_SCHEMA = {
     "required": ["etablissement", "adresse", "ville","date_visite","nom_complet_client","description_prob"],
     "additionalProperties": False
 }
-# TODO: vérifier si je mets avatar
+
 USER_CREATION_SCHEMA = {
     "type": "object",
     "properties": {
@@ -73,6 +73,16 @@ USER_CREATION_SCHEMA = {
         }
     },
     "required": ["nom", "prenom", "email", "password", "liste_etablissements_surveiller"],
+    "additionalProperties": False
+}
+
+USER_LOGIN_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "email": {"type": "string"},
+        "password": {"type": "string"}
+    },
+    "required": ["email", "password"],
     "additionalProperties": False
 }
 
@@ -170,6 +180,25 @@ def iso_date_to_basic(date_str: str) -> str:
     """Convertit YYYY-MM-DD en YYYYMMDD."""
     return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
 
+def _start_session(user_id, email):
+    """Démarre une session pour un utilisateur donné."""
+    id_session = uuid.uuid4().hex
+    
+    _get_db().save_session(id_session, email)
+
+    session["id"] = id_session
+    session["user_id"] = user_id
+    session["email"] = email
+
+def _end_session(id_session):
+    """Termine une session pour un utilisateur donné."""
+    
+    _get_db().delete_session(id_session)
+    
+    session.pop("id", None)
+    session.pop("user_id", None)
+    session.pop("email", None)
+
 @app.context_processor
 def inject_auth_state():
     """Fonction utile pour le front-end"""
@@ -177,6 +206,7 @@ def inject_auth_state():
         "get_categorie_violation_icon": _get_categorie_violation_icon,
         "get_status_violation_color": _get_status_violation_color,
     }
+
 
 
 #############################
@@ -222,11 +252,31 @@ def demande_inspection():
     
     return render_template("form_demande_inspection.html",liste_etablissement=liste_etablissement)
 
+@app.route("/login", methods=["GET"])
+def login_page():
+    """Affiche la page login."""
+    if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+        # Deja connecte
+        return render_template(
+            "index.html"
+        )
+
+    return render_template("login.html")
+
+@app.route("/signin", methods=["GET"])
+def signin_page():
+    """Affiche la page d\'inscription."""
+    if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+        # Deja connecte
+        return render_template(
+            "index.html"
+        )
+    return render_template("signin.html")
+
 
 #############################
 ###### API SERVICES #########
 #############################
-
 @app.route("/etablissement/<int:business_id>", methods=["GET"])
 def etablissement_details(business_id: int):
     """API retourne en JSON les details d'un établissement."""
@@ -369,6 +419,54 @@ def supprimer_demande_inspection(id_inspection):
     return jsonify({"success": True,"message": f"Demande d'inspection avec l'id {id_inspection} supprimee avec succes."}), 200
 
 
+@app.route("/login", methods=["POST"])
+@schema.validate(USER_LOGIN_SCHEMA)
+def connect_user():
+    """API pour connecter un utilisateur."""
+    credentials = request.get_json()
+    email = credentials.get("email")
+    password = credentials.get("password")
+    
+    user_login_info = _get_db().get_user_login_info(email)
+    if user_login_info is None:
+        return jsonify({
+            "error": f"Aucun utilisateur trouvee avec le courriel {email}."
+        }), 404
+
+    salt, stored_hash, user_id = user_login_info
+    # Verif du mdp
+    hashed_password = hashlib.sha512(
+        str(password + salt).encode("utf-8")).hexdigest()
+
+    if hashed_password != stored_hash:
+        return jsonify({
+            "error": "Mots de passe invalide."
+        }), 404
+
+    if _get_db().get_user_status(user_id) == 0:
+        return jsonify({
+            "error": "Compte désactiver veuillez contacter un administrateur !"
+        }), 403
+    
+    # Creation de la session
+    _start_session(user_id, email)
+
+    return jsonify({"success": True,"message": "Connexion réussie.","session_id": session.get("id")}), 200
+
+@app.route("/logout", methods=["POST"])
+def logout_user():
+    """API pour deconnecter un utilisateur."""
+    id_session = session.get("id")
+    if not id_session:
+        return jsonify({
+            "error": "Aucune session active trouvee."
+        }), 404
+    
+    _end_session(id_session)
+
+    return jsonify({"success": True,"message": "Déconnexion réussie."}), 200
+
+
 @app.route("/user", methods=["POST"])
 @schema.validate(USER_CREATION_SCHEMA)
 def creer_new_user():
@@ -393,10 +491,15 @@ def creer_new_user():
             "error": f"L'établissement {nom} n'existe pas."
             }), 404
         
-    # TODO: voir si j'intégre avatar
     password = new_user.get("password")
     salt, hashed_password = _build_password_hash(password)
-    _get_db().insert_user(new_user,salt,hashed_password)
+    
+    if new_user.get("avatar"):
+        avatar = new_user.get("avatar")
+    else:
+        avatar = None
+        
+    _get_db().insert_user(new_user,salt,hashed_password,avatar)
     return jsonify({"success": True,"message": f"L'utilisateur {email} a été créer avec succes."}), 201
 
 
