@@ -33,6 +33,9 @@ app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB upload limit
 scheduler = BackgroundScheduler(timezone="America/Toronto")
 schema = JsonSchema(app)
 
+#############################
+######### SCHEMA ###########
+#############################
 DEMANDE_INSPECTION_SCHEMA = {
     "type": "object",
     "properties": {
@@ -73,6 +76,10 @@ USER_CREATION_SCHEMA = {
     "additionalProperties": False
 }
 
+
+#############################
+######### VALIDATION ########
+#############################
 @app.errorhandler(JsonValidationError)
 def handle_validation_error(e):
     return jsonify({
@@ -92,6 +99,10 @@ def handle_unsupported_media_type(e):
         "error": "Le Content-Type doit etre application/json"
     }), 415
 
+
+#############################
+######### HELPER ############
+#############################
 def _get_db():
     """Pool connexion à bd."""
     db = getattr(g, "_database", None)
@@ -99,15 +110,13 @@ def _get_db():
         g._database = Database()
     return g._database
 
-def sync_violations_job():
-    with app.app_context():
-        app.logger.info("Debut de la synchronisation")
-        result = update_violations()
-        app.logger.info(
-            "Synchronisation terminee: %s insertions, %s mises a jour",
-            result["inserted"],
-            result["updated"],
-        )
+@app.teardown_appcontext
+def close_connection(exception):
+    """Ferme la connexion SQL ouverte pendant la requete courante."""
+    db = getattr(g, "_database", None)
+    if db is not None:
+        db.disconnect()
+
 def _build_password_hash(password):
     """Genere le sel et le hash SHA-512 du mot de passe."""
     salt = uuid.uuid4().hex
@@ -161,14 +170,6 @@ def iso_date_to_basic(date_str: str) -> str:
     """Convertit YYYY-MM-DD en YYYYMMDD."""
     return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
 
-@app.teardown_appcontext
-def close_connection(exception):
-    """Ferme la connexion SQL ouverte pendant la requete courante."""
-    db = getattr(g, "_database", None)
-    if db is not None:
-        db.disconnect()
-
-
 @app.context_processor
 def inject_auth_state():
     """Fonction utile pour le front-end"""
@@ -176,6 +177,11 @@ def inject_auth_state():
         "get_categorie_violation_icon": _get_categorie_violation_icon,
         "get_status_violation_color": _get_status_violation_color,
     }
+
+
+#############################
+######### ROUTES ############
+#############################
 
 @app.route("/", methods=["GET"])
 def index():
@@ -200,9 +206,26 @@ def index():
 
 @app.route("/doc", methods=["GET"])
 def doc():
+    """Redirige vers la documentation de l'API."""
     return redirect(url_for("static", filename="doc/api.html"))
 
-# ==== SERVICES API REST ====
+@app.route("/inspections", methods=["GET"])
+def inspections():
+    """Affiche la page de tout les demandes d\'inspections inspections."""
+    plaintes = _get_db().return_all_inspections()
+    return render_template("inspections.html",plaintes=plaintes)
+
+@app.route("/demande-inspection", methods=["GET"])
+def demande_inspection():
+    """Affiche la page de formulaire de demande d\'inspection."""
+    liste_etablissement = _get_db().return_all_etablissements()
+    
+    return render_template("form_demande_inspection.html",liste_etablissement=liste_etablissement)
+
+
+#############################
+###### API SERVICES #########
+#############################
 
 @app.route("/etablissement/<int:business_id>", methods=["GET"])
 def etablissement_details(business_id: int):
@@ -253,11 +276,13 @@ def contrevenants():
 
 @app.route("/violations_par_etablissement", methods=["GET"])
 def violations_par_etablissement():
+    """API retourne en JSON les violations par établissement."""
     violations = _get_db().return_all_etablissement_with_nb_violations()
     return jsonify(violations),200
 
 @app.route("/violations_par_etablissement.xml", methods=["GET"])
 def violations_par_etablissement_xml():
+    """API retourne en XML les violations par établissement."""
     violations = _get_db().return_all_etablissement_with_nb_violations()
 
     root = ET.Element("etablissements")
@@ -278,6 +303,7 @@ def violations_par_etablissement_xml():
 
 @app.route("/violations_par_etablissement.csv", methods=["GET"])
 def violations_par_etablissement_csv():
+    """ API retourne en CSV les violations par établissement."""
     violations = _get_db().return_all_etablissement_with_nb_violations()
     output = io.StringIO()
     writer = csv.writer(output)
@@ -296,21 +322,12 @@ def violations_par_etablissement_csv():
         mimetype="text/csv; charset=utf-8",
     )
 
-@app.route("/inspections", methods=["GET"])
-def inspections():
-    plaintes = _get_db().return_all_inspections()
-    return render_template("inspections.html",plaintes=plaintes)
-
-@app.route("/demande-inspection", methods=["GET"])
-def demande_inspection():
-    liste_etablissement = _get_db().return_all_etablissements()
-    
-    return render_template("form_demande_inspection.html",liste_etablissement=liste_etablissement)
-
 # TODO: revoir comment je fais mon post
 @app.route("/demande-inspection", methods=["POST"])
 @schema.validate(DEMANDE_INSPECTION_SCHEMA)
 def creer_demande_inspection():
+    """API pour creer une demande inspection. Validation date et existence de l'établissement."""
+    
     demande_inspection = request.get_json()
     if not is_date_iso(demande_inspection.get("date_visite")):
         return jsonify({
@@ -328,6 +345,8 @@ def creer_demande_inspection():
 
 @app.route("/demande-inspection/<int:id_inspection>", methods=["DELETE"])
 def supprimer_demande_inspection(id_inspection):
+    """API pour supprimer une demande d'inspection."""
+    
     if not id_inspection:
         return jsonify({
             "error": "Le parametre 'id_inspection' est obligatoire."
@@ -349,9 +368,12 @@ def supprimer_demande_inspection(id_inspection):
     
     return jsonify({"success": True,"message": f"Demande d'inspection avec l'id {id_inspection} supprimee avec succes."}), 200
 
+
 @app.route("/user", methods=["POST"])
 @schema.validate(USER_CREATION_SCHEMA)
 def creer_new_user():
+    """ API pour creer un nouvel utilisateur."""
+    
     new_user = request.get_json()
     email = new_user.get("email")
     if _get_db().email_already_exist(email):
@@ -378,10 +400,21 @@ def creer_new_user():
     return jsonify({"success": True,"message": f"L'utilisateur {email} a été créer avec succes."}), 201
 
 
-    
-    
-# ==== FIN API REST ====
+#############################
+######## SCHEDULER ##########
+#############################
 
+def sync_violations_job():
+    """Synchroniser les violations. """
+    with app.app_context():
+        app.logger.info("Debut de la synchronisation")
+        result = update_violations()
+        app.logger.info(
+            "Synchronisation terminee: %s insertions, %s mises a jour",
+            result["inserted"],
+            result["updated"],
+        )    
+    
 scheduler.add_job(
     func=sync_violations_job,
     trigger="cron",
