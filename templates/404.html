@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 
 {% block content %}
+{% with back_url_wanted=url_for('index') %}
 {% include "_back_button.html" %}
+{% endwith %}
 <h1 class="text-xl text-red-500">Erreur 404</h1>
 <p>{{ message }}</p>
-{% endif %}
 {% endblock %}

@@ -322,6 +322,8 @@ def index():
 @app.route("/etablissement_details/<int:business_id>", methods=["GET"])
 def etablissement_details_page(business_id: int):
     """Remplis la page pour les details d'un établissement."""
+    if business_id is None:
+        return render_template("404.html", message="Aucun établissement spécifié.")
     etablissement_summary = _get_db().return_business_summary(business_id)
 
     if not etablissement_summary:

@@ -42,14 +42,14 @@
   );
   const emptyState = document.getElementById("inspection-empty-state");
 
-  if (!modal || !confirmButton) {
-    return;
-  }
-
   let selectedInspection = null;
 
   /** Ouvre le modal de confirmation pour la plainte sélectionnée. */
   function openModal(inspection) {
+    if (!modal || !confirmButton) {
+      return;
+    }
+
     selectedInspection = inspection;
     modalName.textContent = inspection.etablissement || "";
     modalAddress.textContent = inspection.adresse || "";
@@ -62,6 +62,10 @@
 
   /** Referme le modal et nettoie la sélection courante. */
   function closeModal() {
+    if (!modal || !confirmButton) {
+      return;
+    }
+
     selectedInspection = null;
     modal.classList.add("hidden");
     modal.classList.remove("flex");
@@ -198,81 +202,83 @@
     emptyState.classList.toggle("hidden", remainingCards.length > 0);
   }
 
-  document
-    .querySelectorAll("[data-inspection-remove-button]")
-    .forEach(function (button) {
-      button.addEventListener("click", function () {
-        openModal({
-          id: Number(button.dataset.id),
-          etablissement: button.dataset.etablissement || "",
-          adresse: button.dataset.adresse || "",
+  if (modal && confirmButton) {
+    document
+      .querySelectorAll("[data-inspection-remove-button]")
+      .forEach(function (button) {
+        button.addEventListener("click", function () {
+          openModal({
+            id: Number(button.dataset.id),
+            etablissement: button.dataset.etablissement || "",
+            adresse: button.dataset.adresse || "",
+          });
         });
       });
+
+    cancelButton.addEventListener("click", closeModal);
+    if (closeButton) {
+      closeButton.addEventListener("click", closeModal);
+    }
+
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) {
+        closeModal();
+      }
     });
 
-  cancelButton.addEventListener("click", closeModal);
-  if (closeButton) {
-    closeButton.addEventListener("click", closeModal);
-  }
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+        closeModal();
+      }
+    });
 
-  modal.addEventListener("click", function (event) {
-    if (event.target === modal) {
-      closeModal();
-    }
-  });
+    confirmButton.addEventListener("click", async function () {
+      if (!selectedInspection) {
+        return;
+      }
 
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && !modal.classList.contains("hidden")) {
-      closeModal();
-    }
-  });
+      confirmButton.disabled = true;
+      hideFeedbackMessage("#demande-inspection-message");
 
-  confirmButton.addEventListener("click", async function () {
-    if (!selectedInspection) {
-      return;
-    }
+      try {
+        const response = await fetch(
+          `/demande-inspection/${selectedInspection.id}`,
+          {
+            method: "DELETE",
+          },
+        );
 
-    confirmButton.disabled = true;
-    hideFeedbackMessage("#demande-inspection-message");
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(
+            (data && data.error) ||
+              "Une erreur est survenue lors de la suppression.",
+          );
+        }
 
-    try {
-      const response = await fetch(
-        `/demande-inspection/${selectedInspection.id}`,
-        {
-          method: "DELETE",
-        },
-      );
+        const plainteCard = document.getElementById(
+          `plainte-${selectedInspection.id}`,
+        );
+        if (plainteCard) {
+          plainteCard.remove();
+        }
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          (data && data.error) ||
-            "Une erreur est survenue lors de la suppression.",
+        renderEmptyState();
+        closeModal();
+        showFeedbackMessage(
+          "#demande-inspection-message",
+          data.message || "Plainte supprimée avec succès.",
+          "success",
+          { autoHide: true, delay: 3500 },
+        );
+      } catch (error) {
+        confirmButton.disabled = false;
+        showFeedbackMessage(
+          "#demande-inspection-message",
+          error.message,
+          "error",
         );
       }
-
-      const plainteCard = document.getElementById(
-        `plainte-${selectedInspection.id}`,
-      );
-      if (plainteCard) {
-        plainteCard.remove();
-      }
-
-      renderEmptyState();
-      closeModal();
-      showFeedbackMessage(
-        "#demande-inspection-message",
-        data.message || "Plainte supprimée avec succès.",
-        "success",
-        { autoHide: true, delay: 3500 },
-      );
-    } catch (error) {
-      confirmButton.disabled = false;
-      showFeedbackMessage(
-        "#demande-inspection-message",
-        error.message,
-        "error",
-      );
-    }
-  });
+    });
+  }
 })();
