@@ -213,10 +213,11 @@
 
    <br>
 
+   {% block scripts %}
    <script src="{{ url_for('static', filename='js/feedback-message.js') }}"></script>
    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
-   {% block scripts %}{% endblock %}
+   {% endblock %}
 
 </body>
 
