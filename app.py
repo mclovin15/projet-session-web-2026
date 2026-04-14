@@ -9,7 +9,7 @@ import atexit
 import os
 import xml.etree.ElementTree as ET
 
-from flask import Flask, g, redirect,render_template,request,session,url_for,jsonify, Response
+from flask import Flask, g, redirect, render_template, request, session, url_for, jsonify, Response
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from flask_json_schema import JsonSchema, JsonValidationError
@@ -38,17 +38,29 @@ schema = JsonSchema(app)
 DEMANDE_INSPECTION_SCHEMA = {
     "type": "object",
     "properties": {
-        "business_id": {"type": "integer"},
-        "etablissement": {"type": "string"},
-        "adresse": {"type": "string"},
-        "ville": {"type": "string"},
-        "date_visite" : {"type": "string"},
-        "nom_complet_client" : {"type": "string"},
-        "description_prob" : {"type": "string"}
-    },
-    "required": ["business_id", "etablissement", "adresse", "ville","date_visite","nom_complet_client","description_prob"],
-    "additionalProperties": False
-}
+        "business_id": {
+            "type": "integer"},
+        "etablissement": {
+            "type": "string"},
+        "adresse": {
+            "type": "string"},
+        "ville": {
+            "type": "string"},
+        "date_visite": {
+            "type": "string"},
+        "nom_complet_client": {
+            "type": "string"},
+        "description_prob": {
+            "type": "string"}},
+    "required": [
+        "business_id",
+        "etablissement",
+        "adresse",
+        "ville",
+        "date_visite",
+        "nom_complet_client",
+        "description_prob"],
+    "additionalProperties": False}
 
 USER_CREATION_SCHEMA = {
     "type": "object",
@@ -56,7 +68,7 @@ USER_CREATION_SCHEMA = {
         "nom": {"type": "string"},
         "prenom": {"type": "string"},
         "email": {"type": "string"},
-        "avatar": {"type": "string", "format": "data-url"}, 
+        "avatar": {"type": "string", "format": "data-url"},
         "password": {"type": "string"},
         "liste_etablissements_surveiller": {
             "type": "array",
@@ -129,11 +141,13 @@ def handle_validation_error(e):
         "errors": [err.message for err in e.errors],
     }), 400
 
+
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
     return jsonify({
         "error": "JSON mal forme"
     }), 400
+
 
 @app.errorhandler(UnsupportedMediaType)
 def handle_unsupported_media_type(e):
@@ -152,12 +166,14 @@ def _get_db():
         g._database = Database()
     return g._database
 
+
 @app.teardown_appcontext
 def close_connection(exception):
     """Ferme la connexion SQL ouverte pendant la requete courante."""
     db = getattr(g, "_database", None)
     if db is not None:
         db.disconnect()
+
 
 def _build_password_hash(password):
     """Genere le sel et le hash SHA-512 du mot de passe."""
@@ -166,6 +182,7 @@ def _build_password_hash(password):
         str(password + salt).encode("utf-8")).hexdigest()
 
     return salt, hashed_password
+
 
 def _is_supported_avatar_data_url(avatar_data_url):
     """Valide que l'avatar fourni est au format PNG ou JPG/JPEG."""
@@ -176,6 +193,7 @@ def _is_supported_avatar_data_url(avatar_data_url):
         avatar_data_url.startswith("data:image/png;base64,")
         or avatar_data_url.startswith("data:image/jpeg;base64,")
     )
+
 
 def _get_status_violation_color(status: str):
     """Retourne une couleur CSS pour un statut de violation donné."""
@@ -189,6 +207,7 @@ def _get_status_violation_color(status: str):
     else:
         return "bg-gray-100 text-gray-800 border-gray-200"
 
+
 def _get_categorie_violation_icon(categorie: str):
     """Retourne une icone pour une categorie de violation donné."""
     categorie = categorie.lower()
@@ -200,7 +219,8 @@ def _get_categorie_violation_icon(categorie: str):
         return '<i class="fa-solid fa-beer-mug-empty"></i>'
     else:
         return '<i class="fa-solid fa-shop"></i>'
-    
+
+
 def is_iso_extended_date(date_str: str) -> bool:
     """ Permet savoir si format est YYYY-MM-DD """
     try:
@@ -208,36 +228,42 @@ def is_iso_extended_date(date_str: str) -> bool:
         return True
     except ValueError:
         return False
-    
+
+
 def iso_date_to_basic(date_str: str) -> str:
     """Convertit YYYY-MM-DD en YYYYMMDD."""
     return datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
 
+
 def _start_session(user_id, email):
-    """Démarre une session pour un utilisateur donné."""    
+    """Démarre une session pour un utilisateur donné."""
     id_session = uuid.uuid4().hex
-    
+
     _get_db().save_session(id_session, email)
 
     session["id"] = id_session
     session["user_id"] = user_id
     session["email"] = email
 
+
 def _end_session(id_session):
     """Termine une session pour un utilisateur donné."""
-    
+
     _get_db().delete_session(id_session)
-    
+
     session.pop("id", None)
     session.pop("user_id", None)
     session.pop("email", None)
 
+
 @app.context_processor
 def inject_auth_state():
     """Fonction utile pour le front-end"""
-    is_logged_in = _get_db().user_is_log_in(session.get("id"),session.get("email"))
+    is_logged_in = _get_db().user_is_log_in(
+        session.get("id"), session.get("email"))
     connected_user_id = session.get("user_id") if is_logged_in else None
-    avatar = _get_db().get_avatar_by_userid(connected_user_id) if connected_user_id else None
+    avatar = _get_db().get_avatar_by_userid(
+        connected_user_id) if connected_user_id else None
     connected_user_name = (
         _get_db().get_author_name_by_userid(connected_user_id)
         if connected_user_id else None
@@ -255,7 +281,6 @@ def inject_auth_state():
         "get_author_name_by_userid": _get_db().get_author_name_by_userid,
 
     }
-
 
 
 #############################
@@ -278,75 +303,95 @@ def index():
     elif mode == "3":
         # sert à remplir la liste deroulante
         liste_etablissement = _get_db().return_all_etablissements()
-        return render_template("index.html", mode=mode,liste_etablissement=liste_etablissement)
-        
+        return render_template(
+            "index.html",
+            mode=mode,
+            liste_etablissement=liste_etablissement)
+
     return render_template("index.html", mode=mode)
+
 
 @app.route("/etablissement_details/<int:business_id>", methods=["GET"])
 def etablissement_details_page(business_id: int):
     """Remplis la page pour les details d'un établissement."""
     etablissement_summary = _get_db().return_business_summary(business_id)
-    
+
     if not etablissement_summary:
         return render_template("404.html", message="Établissement non trouvé.")
     violation_list = _get_db().return_all_violations_of_etablissement(business_id)
-    
+
     if not violation_list:
-        return render_template("404.html", message="Aucune violation trouvée pour cet établissement.")
-    
-    return render_template("business_details.html", etablissement_details=etablissement_summary[0], violations=violation_list)
+        return render_template(
+            "404.html",
+            message="Aucune violation trouvée pour cet établissement.")
+
+    return render_template(
+        "business_details.html",
+        etablissement_details=etablissement_summary[0],
+        violations=violation_list)
+
 
 @app.route("/doc", methods=["GET"])
 def doc():
     """Redirige vers la documentation de l'API."""
     return redirect(url_for("static", filename="doc/api.html"))
 
+
 @app.route("/inspections", methods=["GET"])
 def inspections():
     """Affiche la page de tout les demandes d\'inspections inspections."""
     plaintes = _get_db().return_all_inspections()
-    return render_template("inspections.html",plaintes=plaintes)
+    return render_template("inspections.html", plaintes=plaintes)
+
 
 @app.route("/demande-inspection", methods=["GET"])
 def demande_inspection():
     """Affiche la page de formulaire de demande d\'inspection."""
     liste_etablissement = _get_db().return_all_etablissements()
-    
-    return render_template("form_demande_inspection.html",liste_etablissement=liste_etablissement)
+
+    return render_template(
+        "form_demande_inspection.html",
+        liste_etablissement=liste_etablissement)
+
 
 @app.route("/login", methods=["GET"])
 def login_page():
     """Affiche la page login."""
-    if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+    if _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
         return redirect(url_for("index"))
 
     return render_template("login.html")
 
+
 @app.route("/signin", methods=["GET"])
 def signin_page():
     """Affiche la page d\'inscription."""
-    if _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+    if _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
         return redirect(url_for("index"))
 
     liste_etablissement = _get_db().return_all_etablissements()
-    return render_template("signin.html", liste_etablissement=liste_etablissement)
+    return render_template(
+        "signin.html",
+        liste_etablissement=liste_etablissement)
+
 
 @app.route("/edit_profile", methods=["GET"])
 def edit_profile_page():
     """Affiche la page de modification du profil."""
-    if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+    if not _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
         # Non connecte
-        return render_template("login.html"),403
+        return render_template("login.html"), 403
 
     user_profile = _get_db().get_user_profile_by_id(session.get("user_id"))
     return render_template("edit_profile.html", user_profile=user_profile)
 
+
 @app.route("/edit_user_watch_list", methods=["GET"])
 def render_form_user_watch_list():
     """Affiche la page de modification de la liste d'établissements surveillés."""
-    if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+    if not _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
         # Non connecte
-        return render_template("login.html"),403
+        return render_template("login.html"), 403
     liste_etablissement = _get_db().return_all_etablissements()
     watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
     return render_template(
@@ -355,14 +400,17 @@ def render_form_user_watch_list():
         watched_businesses=watched_businesses,
     )
 
+
 @app.route("/user_watch_list", methods=["GET"])
 def user_watch_list():
     """Affiche la page de gestion des établissements surveillés."""
-    if not _get_db().user_is_log_in(session.get("id"),email=session.get("email")):
+    if not _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
         # Non connecte
-        return render_template("login.html"),403
+        return render_template("login.html"), 403
     watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
-    return render_template("user_watch_list.html", watched_businesses=watched_businesses)
+    return render_template(
+        "user_watch_list.html",
+        watched_businesses=watched_businesses)
 
 
 #############################
@@ -377,47 +425,51 @@ def etablissement_details(business_id: int):
 
     return jsonify(etablissement.to_dict()), 200
 
+
 @app.route("/contrevenants", methods=["GET"])
 def contrevenants():
     """API retourne en JSON les contrenvations entre les dates données."""
     date_du = request.args.get("du")
     date_au = request.args.get("au")
-    
+
     if not date_du or not date_au:
         return jsonify({
             "error": "Les parametres 'du' et 'au' sont obligatoires."
-        }), 400    
-        
-    try: 
-        if(is_iso_extended_date(date_au)):
+        }), 400
+
+    try:
+        if (is_iso_extended_date(date_au)):
             date_au = iso_date_to_basic(date_au)
         else:
             raise ValueError("Date au invalide")
-            
-        if(is_iso_extended_date(date_du)):
+
+        if (is_iso_extended_date(date_du)):
             date_du = iso_date_to_basic(date_du)
         else:
-            raise ValueError("Date du  invalide") 
-        
+            raise ValueError("Date du  invalide")
+
     except ValueError:
         return jsonify({
             "error": "Les dates doivent etre au format ISO 8601 YYYY-MM-DD."
-        }), 400   
-        
+        }), 400
+
     if date_du > date_au:
         return jsonify({
             "error": "La date 'du' doit etre anterieure ou egale a la date 'au'."
         }), 400
 
-    violations_in_range = _get_db().search_violations_by_date_range(date_du,date_au)
-    
-    return jsonify([violation.to_dict() for violation in violations_in_range]), 200
+    violations_in_range = _get_db().search_violations_by_date_range(date_du, date_au)
+
+    return jsonify([violation.to_dict()
+                   for violation in violations_in_range]), 200
+
 
 @app.route("/violations_par_etablissement", methods=["GET"])
 def violations_par_etablissement():
     """API retourne en JSON les violations par établissement."""
     violations = _get_db().return_all_etablissement_with_nb_violations()
-    return jsonify(violations),200
+    return jsonify(violations), 200
+
 
 @app.route("/violations_par_etablissement.xml", methods=["GET"])
 def violations_par_etablissement_xml():
@@ -431,7 +483,9 @@ def violations_par_etablissement_xml():
         ET.SubElement(etab, "business_id").text = str(item["business_id"])
         ET.SubElement(etab, "nom").text = item["etablissement"]
         ET.SubElement(etab, "adresse").text = item["adresse"]
-        ET.SubElement(etab, "nombre_violations").text = str(item["nombre_violations"])
+        ET.SubElement(
+            etab, "nombre_violations").text = str(
+            item["nombre_violations"])
 
     xml_bytes = ET.tostring(root, encoding="utf-8", xml_declaration=True)
 
@@ -440,15 +494,17 @@ def violations_par_etablissement_xml():
         mimetype="application/xml; charset=utf-8",
     )
 
+
 @app.route("/violations_par_etablissement.csv", methods=["GET"])
 def violations_par_etablissement_csv():
     """ API retourne en CSV les violations par établissement."""
-    
+
     violations = _get_db().return_all_etablissement_with_nb_violations()
     output = io.StringIO()
     writer = csv.writer(output)
 
-    writer.writerow(["business_id", "etablissement", "adresse", "nombre_violations"])
+    writer.writerow(["business_id", "etablissement",
+                    "adresse", "nombre_violations"])
     for item in violations:
         writer.writerow([
             item["business_id"],
@@ -462,61 +518,66 @@ def violations_par_etablissement_csv():
         mimetype="text/csv; charset=utf-8",
     )
 
+
 @app.route("/demande-inspection", methods=["POST"])
 @schema.validate(DEMANDE_INSPECTION_SCHEMA)
 def creer_demande_inspection():
     """API pour creer une demande inspection. Validation date et existence de l'établissement."""
-    
+
     demande_inspection = request.get_json()
     if not is_iso_extended_date(demande_inspection.get("date_visite")):
         return jsonify({
             "error": "La date doit etre au format ISO 8601 YYYY-MM-DD."
         }), 400
-    
-    if not _get_db().etablissement_exists_by_id(demande_inspection.get("business_id")):
+
+    if not _get_db().etablissement_exists_by_id(
+            demande_inspection.get("business_id")):
         return jsonify({
             "error": "Aucun établissement ne correspond au business_id fourni."
         }), 400
-    
+
     _get_db().insert_inspection(demande_inspection)
-    
-    return jsonify({"success": True,"message": "Demande d'inspection créée avec succès."}), 201
+
+    return jsonify(
+        {"success": True, "message": "Demande d'inspection créée avec succès."}), 201
+
 
 @app.route("/demande-inspection/<int:id_inspection>", methods=["DELETE"])
 def supprimer_demande_inspection(id_inspection):
     """API pour supprimer une demande d'inspection."""
-    
+
     if not id_inspection:
         return jsonify({
             "error": "Le parametre 'id_inspection' est obligatoire."
         }), 400
-    
+
     try:
         id_inspection = int(id_inspection)
     except ValueError:
         return jsonify({
             "error": "Le parametre 'id_inspection' doit etre un entier."
         }), 400
-    
-    if  _get_db().get_inspection_by_id(id_inspection) is None:
+
+    if _get_db().get_inspection_by_id(id_inspection) is None:
         return jsonify({
             "error": f"Aucune demande d'inspection trouvee avec l'id {id_inspection}."
         }), 404
-    
+
     _get_db().delete_inspection(id_inspection)
-    
-    return jsonify({"success": True,"message": f"Demande d'inspection avec l'id {id_inspection} supprimee avec succes."}), 200
+
+    return jsonify(
+        {"success": True, "message": f"Demande d'inspection avec l'id {id_inspection} supprimee avec succes."}), 200
 
 
 @app.route("/login", methods=["POST"])
 @schema.validate(USER_LOGIN_SCHEMA)
 def connect_user():
     """API pour connecter un utilisateur."""
-    
+
     credentials = request.get_json()
     email = credentials.get("email")
     password = credentials.get("password")
-    
+
     user_login_info = _get_db().get_user_login_info(email)
     if user_login_info is None:
         return jsonify({
@@ -537,53 +598,56 @@ def connect_user():
         return jsonify({
             "error": "Compte désactiver veuillez contacter un administrateur !"
         }), 403
-    
+
     # Creation de la session
     _start_session(user_id, email)
 
-    return jsonify({"success": True,"message": "Connexion réussie.","session_id": session.get("id")}), 200
+    return jsonify({"success": True, "message": "Connexion réussie.",
+                   "session_id": session.get("id")}), 200
+
 
 @app.route("/logout", methods=["DELETE"])
 def logout_user():
     """API pour deconnecter un utilisateur."""
-    
+
     id_session = session.get("id")
     if not id_session:
         return jsonify({
             "error": "Aucune session active trouvee."
         }), 404
-    
+
     # Terminer la session
     _end_session(id_session)
 
-    return jsonify({"success": True,"message": "Déconnexion réussie."}), 200
+    return jsonify({"success": True, "message": "Déconnexion réussie."}), 200
 
 
 @app.route("/user", methods=["POST"])
 @schema.validate(USER_CREATION_SCHEMA)
 def creer_new_user():
     """ API pour creer un nouvel utilisateur."""
-    
+
     new_user = request.get_json()
     email = new_user.get("email")
     if _get_db().email_already_exist(email):
         return jsonify({
             "error": f"Le courriel {email} est deja pris."
-        }), 404   
-        
-    liste_etablissements_surveiller = new_user.get("liste_etablissements_surveiller")
+        }), 404
+
+    liste_etablissements_surveiller = new_user.get(
+        "liste_etablissements_surveiller")
 
     for etablissement in liste_etablissements_surveiller:
         business_id = etablissement["business_id"]
         nom = etablissement["etablissement"]
         if not _get_db().etablissement_exists_by_id(business_id):
             return jsonify({
-            "error": f"L'établissement {nom} n'existe pas."
+                "error": f"L'établissement {nom} n'existe pas."
             }), 404
-        
+
     password = new_user.get("password")
     salt, hashed_password = _build_password_hash(password)
-    
+
     if new_user.get("avatar"):
         avatar = new_user.get("avatar")
     else:
@@ -593,12 +657,14 @@ def creer_new_user():
         return jsonify({
             "error": "L'avatar doit etre au format JPG ou PNG."
         }), 400
-        
-    _get_db().insert_user(new_user,salt,hashed_password,avatar)
+
+    _get_db().insert_user(new_user, salt, hashed_password, avatar)
     user_id = _get_db().get_user_id_from_email(email)
     _start_session(user_id, email)
-    
-    return jsonify({"success": True,"message": f"L'utilisateur {email} a été créer avec succes."}), 201
+
+    return jsonify(
+        {"success": True, "message": f"L'utilisateur {email} a été créer avec succes."}), 201
+
 
 @app.route("/user/<int:user_id>", methods=["PATCH"])
 @schema.validate(USER_PROFILE_UPDATE_SCHEMA)
@@ -638,6 +704,7 @@ def edit_user_profile(user_id):
         "message": "Profil mis à jour avec succès."
     }), 200
 
+
 @app.route("/user_watch_list/<int:user_id>", methods=["PATCH"])
 @schema.validate(WATCHED_BUSINESS_LIST_SCHEMA)
 def edit_user_watch_list(user_id):
@@ -647,11 +714,11 @@ def edit_user_watch_list(user_id):
         return jsonify({
             "error": f"Aucun utilisateur trouvee avec l'id {user_id}."
         }), 404
-    if not _get_db().user_is_log_in(session.get("id"),email=user["email"]):
+    if not _get_db().user_is_log_in(session.get("id"), email=user["email"]):
         # Non connecte
         return jsonify({
             "error": f"Vous devez etre connecter pour faire cela."
-            }), 404
+        }), 404
 
     new_watch_list = request.get_json().get("liste_etablissements_surveiller", [])
     current_watch_list = _get_db().get_business_watchlist_user(user_id)
@@ -678,7 +745,8 @@ def edit_user_watch_list(user_id):
     added_ids = sorted(set(new_by_id) - set(current_by_id))
     removed_ids = sorted(set(current_by_id) - set(new_by_id))
 
-    # on verifie si les infos des établissements qui sont dans les deux listes ont changé
+    # on verifie si les infos des établissements qui sont dans les deux listes
+    # ont changé
     updated_ids = sorted(
         business_id for business_id in (set(new_by_id) & set(current_by_id))
         if new_by_id[business_id] != current_by_id[business_id]
@@ -716,8 +784,9 @@ def sync_violations_job():
             "Synchronisation terminee: %s insertions, %s mises a jour",
             result["inserted"],
             result["updated"],
-        )    
-    
+        )
+
+
 scheduler.add_job(
     func=sync_violations_job,
     trigger="cron",
@@ -725,7 +794,7 @@ scheduler.add_job(
     minute=0,
     id="daily_violation_sync",
     replace_existing=True,
-    misfire_grace_time=3600, # autoriser une execution jusqu'à 1h après l'heure
+    misfire_grace_time=3600,  # autoriser une execution jusqu'à 1h après l'heure
 )
 # TODO: revoir à la remise si on l'enlève
 # Evite de lancer deux schedulers avec le reloader de Flask en debug

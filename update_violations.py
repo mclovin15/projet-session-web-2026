@@ -22,6 +22,7 @@ HEADERS = {
     "Accept": "text/csv,*/*",
 }
 
+
 def update_violations():
     db = Database()
     number_inserted = 0

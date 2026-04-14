@@ -5,7 +5,7 @@
 from database import Database
 from violation import Violation
 import csv
-from urllib.request import Request,urlopen
+from urllib.request import Request, urlopen
 
 db = Database()
 connection = db.get_connection()
@@ -28,7 +28,8 @@ with urlopen(request, timeout=30) as response:
     reader = csv.DictReader(contenu)
 
     for row in reader:
-        if(not db.violation_exists(int(row["id_poursuite"]))):
-            print("Insertion de la violation #" + str(row["id_poursuite"]) + " réuisste")
+        if (not db.violation_exists(int(row["id_poursuite"]))):
+            print("Insertion de la violation #" +
+                  str(row["id_poursuite"]) + " réuisste")
             violation = Violation.from_csv_row(row)
             db.insert_violation(violation)

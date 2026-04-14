@@ -8,6 +8,7 @@ try:
 except ImportError:
     from violation import Violation
 
+
 @dataclass(slots=True)
 class Etablissement:
     """Classe pour représenter un établissement et ses violations associées"""
@@ -19,12 +20,12 @@ class Etablissement:
     categorie: Optional[str] = None
     montantTotal: float = 0.0
     violations: list[Violation] = field(default_factory=list)
-              
+
     @property
     def nombre_violations(self) -> int:
         """Retourne le nombre de violations"""
         return len(self.violations)
-    
+
     @classmethod
     def from_distinct_select(cls, row):
         """Construit un etablissement a partir d'une selection distincte."""
@@ -52,7 +53,7 @@ class Etablissement:
             adresse=first_violation.adresse,
             violations=violations,
         )
-        
+
     def to_dict(self):
         """Convertit l'etablissement en dict pour JSON."""
         return {

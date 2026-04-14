@@ -30,10 +30,10 @@ class Database:
         if self.connection is not None:
             self.connection.close()
 
-
     #############################
     ######### VIOLATIONS ########
     #############################
+
     def insert_violation(self, violation: Violation):
         """Insere une nouvelle violation"""
 
@@ -49,7 +49,7 @@ class Database:
             violation.to_db_tuple(),
         )
         connection.commit()
-        
+
     def update_violation(self, violation: Violation):
         """Met à jour une violation existante"""
 
@@ -74,7 +74,7 @@ class Database:
             violation.to_update_tuple(),
         )
         connection.commit()
-    
+
     def is_violation_updated(self, id_poursuite: int, csv_row: dict):
         """Verifie si une ligne CSV differe de la ligne en base."""
         connection = self.get_connection()
@@ -105,7 +105,7 @@ class Database:
                 return True
 
         return False
-    
+
     def violation_exists(self, id_poursuite: int):
         """Verifie si la violation existe deja"""
         connection = self.get_connection()
@@ -113,7 +113,7 @@ class Database:
             "SELECT 1 FROM violations WHERE id_poursuite = ?", (id_poursuite,)
         )
         return cursor.fetchone() is not None
-    
+
     def search_violations(self, query: str):
         """Recherche des violations par etablissement, proprietaire ou adresse"""
         connection = self.get_connection()
@@ -126,7 +126,7 @@ class Database:
             (search_input, search_input, search_input),
         )
         return [Violation.from_db_row(row) for row in cursor.fetchall()]
-    
+
     def return_all_etablissements(self):
         """Retourne tous les établissements"""
         connection = self.get_connection()
@@ -136,8 +136,9 @@ class Database:
                  from violations ORDER by etablissement;
             """
         )
-        return [Etablissement.from_distinct_select(row) for row in cursor.fetchall()]
-    
+        return [Etablissement.from_distinct_select(
+            row) for row in cursor.fetchall()]
+
     def return_etablissement_details(self, business_id: int):
         """Retourne les details d'un établissement par son business_id"""
         connection = self.get_connection()
@@ -154,7 +155,7 @@ class Database:
 
         violations = [Violation.from_db_row(row) for row in rows]
         return Etablissement.from_violations(violations)
-    
+
     def search_violations_by_date_range(self, from_date, to_date):
         """Recherche des violations avec un range donnée"""
         connection = self.get_connection()
@@ -171,7 +172,7 @@ class Database:
         """Recherche des violations avec le nombre de violations"""
         connection = self.get_connection()
         cursor = connection.execute(
-        """
+            """
         SELECT
             business_id,
             etablissement,
@@ -182,14 +183,14 @@ class Database:
         ORDER BY nombre_violations DESC;
         """)
         rows = cursor.fetchall()
-        
+
         return [dict(row) for row in rows]
-    
+
     def return_all_violations_of_etablissement(self, business_id: int):
         """Recherche des violations avec le nombre de violations"""
         connection = self.get_connection()
         cursor = connection.execute(
-        """
+            """
             SELECT
                 id_poursuite,
                 business_id,
@@ -208,14 +209,14 @@ class Database:
             WHERE business_id = ?
             ORDER BY date_violation DESC, id_poursuite DESC;
         """, (business_id,))
-        
+
         return [Violation.from_db_row(row) for row in cursor.fetchall()]
-    
+
     def return_business_summary(self, business_id: int):
         """Retourne un résumé des informations d'un établissement par son business_id"""
         connection = self.get_connection()
         cursor = connection.execute(
-        """
+            """
         SELECT
             business_id,
             etablissement,
@@ -237,7 +238,7 @@ class Database:
 
         """, (business_id,))
         rows = cursor.fetchall()
-        
+
         return [dict(row) for row in rows]
 
     def etablissement_exists_by_id(self, business_id: int):
@@ -247,8 +248,9 @@ class Database:
             "SELECT 1 FROM violations WHERE business_id = ?", (business_id,)
         )
         return cursor.fetchone() is not None
-    
-    def etablissement_exists_by_infos(self, nom: str,adresse: str, ville: str):
+
+    def etablissement_exists_by_infos(
+            self, nom: str, adresse: str, ville: str):
         """Verifie si un etablissement existe deja par son nom, adresse et ville"""
         connection = self.get_connection()
         cursor = connection.execute(
@@ -256,11 +258,11 @@ class Database:
             (nom, adresse, ville)
         )
         return cursor.fetchone() is not None
-    
-    
+
     #############################
     ######### INSPECTION ########
     #############################
+
     def insert_inspection(self, inspection: dict):
         """Insere une nouvelle demande d'inspection"""
 
@@ -302,7 +304,7 @@ class Database:
             (id_inspection,),
         )
         connection.commit()
-        
+
     def return_all_inspections(self):
         """Retourne toutes les demandes d'inspection ordonnees par date de visite decroissante"""
         connection = self.get_connection()
@@ -313,14 +315,16 @@ class Database:
             """
         )
         return [dict(row) for row in cursor.fetchall()]
-    
-    
+
+
 #############################
 ######### USER ##############
 #############################
-    def insert_user(self, user: dict,salt,hashed_password,avatar):
+
+    def insert_user(self, user: dict, salt, hashed_password, avatar):
         """Insere un nouveau user"""
-        liste_etablissements_json = json.dumps(user["liste_etablissements_surveiller"])
+        liste_etablissements_json = json.dumps(
+            user["liste_etablissements_surveiller"])
 
         connection = self.get_connection()
         connection.execute(
@@ -338,12 +342,11 @@ class Database:
                 salt,
                 avatar,
                 liste_etablissements_json,
-                
+
             ),
         )
         connection.commit()
-        
-        
+
     def email_already_exist(self, email: str) -> bool:
         """Determine si email deja existant"""
         connection = self.get_connection()
@@ -352,8 +355,8 @@ class Database:
             (email,),
         )
         row = cursor.fetchone()
-        return  row is not None
-    
+        return row is not None
+
     def get_user_id_from_email(self, email):
         """Retourne l'identifiant utilisateur associe a un courriel."""
         cursor = self.get_connection().cursor()
@@ -388,7 +391,7 @@ class Database:
         if user_info is None:
             return None
         else:
-            return dict(user_info) if user_info is not None else None        
+            return dict(user_info) if user_info is not None else None
 
     def update_user_profile(self, user_id: int, nom: str, prenom: str, avatar):
         """Met à jour les informations de profil d'un utilisateur."""
@@ -402,7 +405,7 @@ class Database:
             (nom, prenom, avatar, user_id),
         )
         connection.commit()
-        
+
     def get_avatar_by_userid(self, user_id):
         """Retourne l'avatar d'un utilisateur par son identifiant."""
         cursor = self.get_connection().cursor()
@@ -416,7 +419,7 @@ class Database:
             return "https://upload.wikimedia.org/wikipedia/commons/5/59/User-avatar.svg"
         else:
             return data[0]
-    
+
     def get_author_name_by_userid(self, user_id):
         """Retourne le nom complet d'un utilisateur par son identifiant."""
         cursor = self.get_connection().cursor()
@@ -429,7 +432,7 @@ class Database:
             return "Utilisateur inconnu"
         else:
             return f"{data[0]} {data[1]}"
-    
+
     def get_user_status(self, id):
         """Retourne le statut actif/inactif d'un utilisateur."""
         cursor = self.get_connection().cursor()
@@ -440,7 +443,7 @@ class Database:
         if user is None:
             return None
         return user["status"]
-    
+
     def get_business_watchlist_user(self, user_id: int):
         """Retourne la liste des établissements surveillés par un utilisateur."""
         connection = self.get_connection()
@@ -453,7 +456,8 @@ class Database:
             return []
         return json.loads(row["liste_etablissements_surveiller"])
 
-    def update_business_watchlist_user(self, user_id: int, watched_businesses: list):
+    def update_business_watchlist_user(
+            self, user_id: int, watched_businesses: list):
         """Met à jour la liste des établissements surveillés d'un utilisateur."""
         connection = self.get_connection()
         connection.execute(
@@ -466,13 +470,16 @@ class Database:
         )
         connection.commit()
 
-    
+
 #############################
 ######### SESSIONS ##########
 #############################
+
+
     def user_is_log_in(self, id_session, email) -> bool:
         """Indique si un id de session correspond a une session valide."""
-        return id_session is not None and email is not None and self.get_session_email(id_session) == email
+        return id_session is not None and email is not None and self.get_session_email(
+            id_session) == email
 
     def save_session(self, id_session, email):
         """Enregistre une nouvelle session pour un utilisateur."""

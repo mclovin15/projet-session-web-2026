@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+
 @dataclass(slots=True)
 class Violation:
     """Classe pour représenter une violation et faciliter la manipulation des données"""
@@ -23,7 +24,9 @@ class Violation:
     @staticmethod
     def _format_date(date_value: str) -> str:
         """Convertit une date YYYYMMDD en YYYY-MM-DD pour l'affichage."""
-        return datetime.strptime(str(date_value), "%Y%m%d").strftime("%Y-%m-%d")
+        return datetime.strptime(
+            str(date_value),
+            "%Y%m%d").strftime("%Y-%m-%d")
 
     @classmethod
     def from_db_row(cls, row):
@@ -98,7 +101,7 @@ class Violation:
             self.categorie,
             self.id_poursuite,
         )
-        
+
     def to_dict(self):
         """Convertit l'instance de Violation en dictionnaire"""
         return {
