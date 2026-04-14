@@ -30,9 +30,7 @@ class Database:
         if self.connection is not None:
             self.connection.close()
 
-    #############################
-    ######### VIOLATIONS ########
-    #############################
+    # Violations
 
     def insert_violation(self, violation: Violation):
         """Insere une nouvelle violation"""
@@ -115,7 +113,7 @@ class Database:
         return cursor.fetchone() is not None
 
     def search_violations(self, query: str):
-        """Recherche des violations par etablissement, proprietaire ou adresse"""
+        """Recherche par etablissement, proprietaire ou adresse."""
         connection = self.get_connection()
         search_input = f"%{query}%"
         cursor = connection.execute(
@@ -213,7 +211,7 @@ class Database:
         return [Violation.from_db_row(row) for row in cursor.fetchall()]
 
     def return_business_summary(self, business_id: int):
-        """Retourne un résumé des informations d'un établissement par son business_id"""
+        """Retourne un resume d'etablissement par business_id."""
         connection = self.get_connection()
         cursor = connection.execute(
             """
@@ -251,17 +249,18 @@ class Database:
 
     def etablissement_exists_by_infos(
             self, nom: str, adresse: str, ville: str):
-        """Verifie si un etablissement existe deja par son nom, adresse et ville"""
+        """Verifie l'existence par nom, adresse et ville."""
         connection = self.get_connection()
         cursor = connection.execute(
-            "SELECT 1 FROM violations WHERE etablissement = ? AND adresse = ? AND ville = ?",
+            (
+                "SELECT 1 FROM violations "
+                "WHERE etablissement = ? AND adresse = ? AND ville = ?"
+            ),
             (nom, adresse, ville)
         )
         return cursor.fetchone() is not None
 
-    #############################
-    ######### INSPECTION ########
-    #############################
+    # Inspections
 
     def insert_inspection(self, inspection: dict):
         """Insere une nouvelle demande d'inspection"""
@@ -306,7 +305,7 @@ class Database:
         connection.commit()
 
     def return_all_inspections(self):
-        """Retourne toutes les demandes d'inspection ordonnees par date de visite decroissante"""
+        """Retourne toutes les demandes d'inspection."""
         connection = self.get_connection()
         cursor = connection.execute(
             """
@@ -316,10 +315,7 @@ class Database:
         )
         return [dict(row) for row in cursor.fetchall()]
 
-
-#############################
-######### USER ##############
-#############################
+    # Users
 
     def insert_user(self, user: dict, salt, hashed_password, avatar):
         """Insere un nouveau user"""
@@ -384,7 +380,10 @@ class Database:
         """Recupere les informations de profil d'un utilisateur."""
         cursor = self.get_connection().cursor()
         cursor.execute(
-            ("select nom, prenom,email,avatar,status,liste_etablissements_surveiller from users where id=?"),
+            (
+                "select nom, prenom, email, avatar, status, "
+                "liste_etablissements_surveiller from users where id=?"
+            ),
             (user_id,),
         )
         user_info = cursor.fetchone()
@@ -416,7 +415,10 @@ class Database:
         data = cursor.fetchone()
         if data is None or not data[0]:
             # Avatar par defaut
-            return "https://upload.wikimedia.org/wikipedia/commons/5/59/User-avatar.svg"
+            return (
+                "https://upload.wikimedia.org/wikipedia/commons/"
+                "5/59/User-avatar.svg"
+            )
         else:
             return data[0]
 
@@ -445,7 +447,7 @@ class Database:
         return user["status"]
 
     def get_business_watchlist_user(self, user_id: int):
-        """Retourne la liste des établissements surveillés par un utilisateur."""
+        """Retourne la liste des etablissements surveilles d'un utilisateur."""
         connection = self.get_connection()
         cursor = connection.execute(
             "SELECT liste_etablissements_surveiller FROM users WHERE id = ?",
@@ -458,7 +460,7 @@ class Database:
 
     def update_business_watchlist_user(
             self, user_id: int, watched_businesses: list):
-        """Met à jour la liste des établissements surveillés d'un utilisateur."""
+        """Met a jour les etablissements surveilles d'un utilisateur."""
         connection = self.get_connection()
         connection.execute(
             """
@@ -470,16 +472,14 @@ class Database:
         )
         connection.commit()
 
-
-#############################
-######### SESSIONS ##########
-#############################
-
-
+    # Sessions
     def user_is_log_in(self, id_session, email) -> bool:
         """Indique si un id de session correspond a une session valide."""
-        return id_session is not None and email is not None and self.get_session_email(
-            id_session) == email
+        return (
+            id_session is not None
+            and email is not None
+            and self.get_session_email(id_session) == email
+        )
 
     def save_session(self, id_session, email):
         """Enregistre une nouvelle session pour un utilisateur."""

@@ -6,7 +6,7 @@ from datetime import datetime
 
 @dataclass(slots=True)
 class Violation:
-    """Classe pour représenter une violation et faciliter la manipulation des données"""
+    """Represente une violation et facilite la manipulation des donnees."""
     id_poursuite: int
     business_id: int
     date_violation: str
@@ -67,7 +67,7 @@ class Violation:
         )
 
     def to_db_tuple(self):
-        """Convertit l'instance de Violation en tuple pour insertion en base."""
+        """Convertit la violation en tuple pour insertion en base."""
         return (
             self.id_poursuite,
             self.business_id,

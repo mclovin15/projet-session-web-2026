@@ -1,4 +1,4 @@
-# Script Python pour importer les contraventions depuis un fichier CSV dans une base de données SQLite
+# Synchronise les contraventions du CSV distant vers la base SQLite.
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 import csv

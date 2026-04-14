@@ -1,4 +1,4 @@
-# Contient de la logique de l'application Flask, des routes et de la configuration du scheduler
+# Contient la logique Flask, les routes et le scheduler.
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 import csv
@@ -9,7 +9,17 @@ import atexit
 import os
 import xml.etree.ElementTree as ET
 
-from flask import Flask, g, redirect, render_template, request, session, url_for, jsonify, Response
+from flask import (
+    Flask,
+    Response,
+    g,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from flask_json_schema import JsonSchema, JsonValidationError
@@ -32,9 +42,7 @@ scheduler = BackgroundScheduler(timezone="America/Toronto")
 schema = JsonSchema(app)
 
 
-#############################
-######### SCHEMA ###########
-#############################
+# Schema
 DEMANDE_INSPECTION_SCHEMA = {
     "type": "object",
     "properties": {
@@ -84,7 +92,13 @@ USER_CREATION_SCHEMA = {
             }
         }
     },
-    "required": ["nom", "prenom", "email", "password", "liste_etablissements_surveiller"],
+    "required": [
+        "nom",
+        "prenom",
+        "email",
+        "password",
+        "liste_etablissements_surveiller",
+    ],
     "additionalProperties": False
 }
 
@@ -131,9 +145,7 @@ WATCHED_BUSINESS_LIST_SCHEMA = {
 }
 
 
-#############################
-######### VALIDATION ########
-#############################
+# Validation
 @app.errorhandler(JsonValidationError)
 def handle_validation_error(e):
     return jsonify({
@@ -156,9 +168,7 @@ def handle_unsupported_media_type(e):
     }), 415
 
 
-#############################
-######### HELPER ############
-#############################
+# Helpers
 def _get_db():
     """Pool connexion à bd."""
     db = getattr(g, "_database", None)
@@ -283,9 +293,7 @@ def inject_auth_state():
     }
 
 
-#############################
-######### ROUTES ############
-#############################
+# Routes
 @app.route("/", methods=["GET"])
 def index():
     """Affiche page accueil avec formulaire de recherche."""
@@ -318,7 +326,9 @@ def etablissement_details_page(business_id: int):
 
     if not etablissement_summary:
         return render_template("404.html", message="Établissement non trouvé.")
-    violation_list = _get_db().return_all_violations_of_etablissement(business_id)
+    violation_list = _get_db().return_all_violations_of_etablissement(
+        business_id
+    )
 
     if not violation_list:
         return render_template(
@@ -378,7 +388,9 @@ def signin_page():
 @app.route("/edit_profile", methods=["GET"])
 def edit_profile_page():
     """Affiche la page de modification du profil."""
-    if not _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
+    if not _get_db().user_is_log_in(
+        session.get("id"), email=session.get("email")
+    ):
         # Non connecte
         return render_template("login.html"), 403
 
@@ -388,12 +400,16 @@ def edit_profile_page():
 
 @app.route("/edit_user_watch_list", methods=["GET"])
 def render_form_user_watch_list():
-    """Affiche la page de modification de la liste d'établissements surveillés."""
-    if not _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
+    """Affiche la page de modification des etablissements surveilles."""
+    if not _get_db().user_is_log_in(
+        session.get("id"), email=session.get("email")
+    ):
         # Non connecte
         return render_template("login.html"), 403
     liste_etablissement = _get_db().return_all_etablissements()
-    watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
+    watched_businesses = _get_db().get_business_watchlist_user(
+        session.get("user_id")
+    )
     return render_template(
         "form_user_watched_businesses.html",
         liste_etablissement=liste_etablissement,
@@ -404,18 +420,20 @@ def render_form_user_watch_list():
 @app.route("/user_watch_list", methods=["GET"])
 def user_watch_list():
     """Affiche la page de gestion des établissements surveillés."""
-    if not _get_db().user_is_log_in(session.get("id"), email=session.get("email")):
+    if not _get_db().user_is_log_in(
+        session.get("id"), email=session.get("email")
+    ):
         # Non connecte
         return render_template("login.html"), 403
-    watched_businesses = _get_db().get_business_watchlist_user(session.get("user_id"))
+    watched_businesses = _get_db().get_business_watchlist_user(
+        session.get("user_id")
+    )
     return render_template(
         "user_watch_list.html",
         watched_businesses=watched_businesses)
 
 
-#############################
-###### API SERVICES #########
-#############################
+# API services
 @app.route("/etablissement/<int:business_id>", methods=["GET"])
 def etablissement_details(business_id: int):
     """API retourne en JSON les details d'un établissement."""
@@ -455,10 +473,14 @@ def contrevenants():
 
     if date_du > date_au:
         return jsonify({
-            "error": "La date 'du' doit etre anterieure ou egale a la date 'au'."
+            "error": (
+                "La date 'du' doit etre anterieure ou egale a la date 'au'."
+            )
         }), 400
 
-    violations_in_range = _get_db().search_violations_by_date_range(date_du, date_au)
+    violations_in_range = _get_db().search_violations_by_date_range(
+        date_du, date_au
+    )
 
     return jsonify([violation.to_dict()
                    for violation in violations_in_range]), 200
@@ -522,7 +544,7 @@ def violations_par_etablissement_csv():
 @app.route("/demande-inspection", methods=["POST"])
 @schema.validate(DEMANDE_INSPECTION_SCHEMA)
 def creer_demande_inspection():
-    """API pour creer une demande inspection. Validation date et existence de l'établissement."""
+    """Cree une demande d'inspection avec validation de la date."""
 
     demande_inspection = request.get_json()
     if not is_iso_extended_date(demande_inspection.get("date_visite")):
@@ -533,13 +555,17 @@ def creer_demande_inspection():
     if not _get_db().etablissement_exists_by_id(
             demande_inspection.get("business_id")):
         return jsonify({
-            "error": "Aucun établissement ne correspond au business_id fourni."
+            "error": (
+                "Aucun établissement ne correspond au business_id fourni."
+            )
         }), 400
 
     _get_db().insert_inspection(demande_inspection)
 
-    return jsonify(
-        {"success": True, "message": "Demande d'inspection créée avec succès."}), 201
+    return jsonify({
+        "success": True,
+        "message": "Demande d'inspection créée avec succès.",
+    }), 201
 
 
 @app.route("/demande-inspection/<int:id_inspection>", methods=["DELETE"])
@@ -560,13 +586,21 @@ def supprimer_demande_inspection(id_inspection):
 
     if _get_db().get_inspection_by_id(id_inspection) is None:
         return jsonify({
-            "error": f"Aucune demande d'inspection trouvee avec l'id {id_inspection}."
+            "error": (
+                "Aucune demande d'inspection trouvee "
+                f"avec l'id {id_inspection}."
+            )
         }), 404
 
     _get_db().delete_inspection(id_inspection)
 
-    return jsonify(
-        {"success": True, "message": f"Demande d'inspection avec l'id {id_inspection} supprimee avec succes."}), 200
+    return jsonify({
+        "success": True,
+        "message": (
+            "Demande d'inspection avec l'id "
+            f"{id_inspection} supprimee avec succes."
+        ),
+    }), 200
 
 
 @app.route("/login", methods=["POST"])
@@ -662,8 +696,10 @@ def creer_new_user():
     user_id = _get_db().get_user_id_from_email(email)
     _start_session(user_id, email)
 
-    return jsonify(
-        {"success": True, "message": f"L'utilisateur {email} a été créer avec succes."}), 201
+    return jsonify({
+        "success": True,
+        "message": f"L'utilisateur {email} a été créer avec succes.",
+    }), 201
 
 
 @app.route("/user/<int:user_id>", methods=["PATCH"])
@@ -720,7 +756,9 @@ def edit_user_watch_list(user_id):
             "error": f"Vous devez etre connecter pour faire cela."
         }), 404
 
-    new_watch_list = request.get_json().get("liste_etablissements_surveiller", [])
+    new_watch_list = request.get_json().get(
+        "liste_etablissements_surveiller", []
+    )
     current_watch_list = _get_db().get_business_watchlist_user(user_id)
 
     # On transformes les listes en dict avec le business_id comme key
@@ -772,9 +810,7 @@ def edit_user_watch_list(user_id):
     }), 200
 
 
-#############################
-######## SCHEDULER ##########
-#############################
+# Scheduler
 def sync_violations_job():
     """Synchroniser les violations. """
     with app.app_context():
@@ -794,9 +830,9 @@ scheduler.add_job(
     minute=0,
     id="daily_violation_sync",
     replace_existing=True,
-    misfire_grace_time=3600,  # autoriser une execution jusqu'à 1h après l'heure
+    misfire_grace_time=3600,  # autoriser une execution jusqu'a 1h apres
 )
-# TODO: revoir à la remise si on l'enlève
+# TODO: revoir a la remise si on l'enleve
 # Evite de lancer deux schedulers avec le reloader de Flask en debug
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
     scheduler.start()
