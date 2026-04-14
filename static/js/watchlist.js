@@ -1,3 +1,7 @@
+/**
+ * Gère le modal de suppression d'un établissement surveillé et
+ * la mise à jour de la liste visible après le PATCH côté API.
+ */
 (function () {
   const pageRoot = document.getElementById("watchlist-page");
   if (!pageRoot) {
@@ -26,6 +30,7 @@
     : [];
   let selectedBusiness = null;
 
+  /** Ouvre le modal pour l'établissement sélectionné. */
   function openModal(business) {
     if (!modal || !confirmButton) {
       return;
@@ -41,6 +46,7 @@
     confirmButton.focus();
   }
 
+  /** Referme le modal et réinitialise la sélection courante. */
   function closeModal() {
     if (!modal || !confirmButton) {
       return;
@@ -53,6 +59,7 @@
     confirmButton.disabled = false;
   }
 
+  /** Affiche l'état vide quand la liste de surveillance devient vide. */
   function renderEmptyState() {
     if (!emptyState) {
       return;

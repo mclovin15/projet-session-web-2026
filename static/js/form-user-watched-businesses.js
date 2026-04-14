@@ -1,3 +1,7 @@
+/**
+ * Gère le formulaire d'ajout d'un établissement à la liste
+ * de surveillance de l'utilisateur connecté.
+ */
 (function () {
   const pageRoot = document.getElementById("watchlist-form-page");
   if (!pageRoot) {
@@ -30,6 +34,7 @@
   const updateUrl = pageRoot.dataset.updateUrl;
   const redirectUrl = pageRoot.dataset.redirectUrl;
 
+  /** Réinitialise les champs cachés liés à l'établissement sélectionné. */
   function resetEtablissementSelection() {
     etablissementHiddenInput.value = "";
     adresseInput.value = "";
@@ -37,6 +42,7 @@
     businessIdHiddenInput.value = "";
   }
 
+  /** Synchronise les champs cachés avec l'option choisie dans le datalist. */
   function syncEtablissementSelection() {
     const selectedValue = etablissementInput.value.trim();
     const selectedOption = etablissementOptions.find(

@@ -1,3 +1,7 @@
+/**
+ * Gère le formulaire de demande d'inspection et le modal de suppression
+ * des plaintes affichées sur la page des inspections.
+ */
 (function () {
   const formDemandeInspection = document.getElementById(
     "form-demande-inspection",
@@ -44,6 +48,7 @@
 
   let selectedInspection = null;
 
+  /** Ouvre le modal de confirmation pour la plainte sélectionnée. */
   function openModal(inspection) {
     selectedInspection = inspection;
     modalName.textContent = inspection.etablissement || "";
@@ -55,6 +60,7 @@
     confirmButton.focus();
   }
 
+  /** Referme le modal et nettoie la sélection courante. */
   function closeModal() {
     selectedInspection = null;
     modal.classList.add("hidden");
@@ -62,6 +68,7 @@
     modal.setAttribute("aria-hidden", "true");
     confirmButton.disabled = false;
   }
+  /** Réinitialise les champs dépendants de l'établissement sélectionné. */
   function resetEtablissementSelection() {
     etablissementHiddenInput.value = "";
     villeInput.value = "";
@@ -71,6 +78,7 @@
     businessIdHiddenInput.value = "";
   }
 
+  /** Recopie les données de l'option choisie vers les champs du formulaire. */
   function syncEtablissementSelection() {
     const selectedValue = etablissementInput.value.trim();
     const selectedOption = etablissementOptions.find(
@@ -180,6 +188,7 @@
     });
   }
 
+  /** Affiche l'état vide lorsqu'il ne reste plus de plaintes visibles. */
   function renderEmptyState() {
     if (!emptyState) {
       return;

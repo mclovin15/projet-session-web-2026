@@ -1,7 +1,13 @@
+/**
+ * Gère les formulaires d'authentification côté client:
+ * connexion, création de compte, validation d'avatar et sélection
+ * des établissements surveillés à l'inscription.
+ */
 (function () {
   const MAX_AVATAR_SIZE_BYTES = 1300000;
   const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png"];
 
+  /** Lit un fichier image et retourne son contenu en Data URL. */
   async function readFileAsDataUrl(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -12,6 +18,7 @@
     });
   }
 
+  /** Construit un message d'erreur uniforme à partir d'une réponse API. */
   function getErrorMessage(data, fallbackMessage) {
     if (!data) {
       return fallbackMessage;
@@ -25,11 +32,12 @@
     return `${data.error || fallbackMessage}${details}`;
   }
 
+  /** Vérifie que l'avatar sélectionné respecte les types autorisés. */
   function isSupportedAvatarFile(file) {
     return Boolean(file && ALLOWED_AVATAR_TYPES.includes(file.type));
   }
 
-  // LOGIN
+  /** Initialise le formulaire de connexion s'il est présent sur la page. */
   function initLoginForm() {
     const loginForm = document.getElementById("login-form");
     if (!loginForm) {
@@ -90,7 +98,7 @@
     });
   }
 
-  // SIGNIN
+  /** Initialise le formulaire d'inscription et sa liste d'établissements. */
   function initSigninForm() {
     const signinForm = document.getElementById("signin-form");
     if (!signinForm) {
@@ -111,6 +119,7 @@
     const avatarInput = document.getElementById("signin-avatar");
     const selectedEtablissements = [];
 
+    /** Réaffiche la liste locale des établissements choisis avant soumission. */
     function renderSelectedEtablissements() {
       selectedContainer
         .querySelectorAll("[data-selected-etablissement]")
@@ -163,6 +172,7 @@
       });
     }
 
+    /** Ajoute un établissement valide à la sélection locale. */
     function addSelectedEtablissement() {
       const selectedValue = selectionInput.value.trim();
       const selectedOption = options.find(

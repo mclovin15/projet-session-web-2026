@@ -1,3 +1,7 @@
+/**
+ * Contrôle les interactions globales de la barre de navigation:
+ * menu mobile, menu profil et déconnexion.
+ */
 (function () {
   const mobileMenuButton = document.querySelector("[data-mobile-menu-button]");
   const mobileMenuPanel = document.querySelector("[data-mobile-menu-panel]");
@@ -8,6 +12,7 @@
   );
   const profileMenuPanel = document.querySelector("[data-profile-menu-panel]");
 
+  /** Ouvre ou ferme le menu mobile et met à jour les attributs d'accessibilité. */
   function setMobileMenuState(isOpen) {
     if (!mobileMenuButton || !mobileMenuPanel || !mobileMenuIcon) {
       return;
@@ -19,6 +24,7 @@
     mobileMenuIcon.classList.toggle("fa-xmark", isOpen);
   }
 
+  /** Ouvre ou ferme le menu profil desktop. */
   function setProfileMenuState(isOpen) {
     if (!profileMenuButton || !profileMenuPanel) {
       return;

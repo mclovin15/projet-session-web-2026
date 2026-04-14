@@ -1,4 +1,3 @@
-# Encapsule l'acces SQLite à la BD
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 import sqlite3

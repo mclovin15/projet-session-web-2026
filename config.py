@@ -1,3 +1,6 @@
+# Fichier pour la configuration de Flask en respectant les exigences du projet
+# Projet Session - INF5190 - 2026
+# Yoan Desjardins - DESY77040109
 import os
 
 class Config:

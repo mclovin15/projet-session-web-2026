@@ -1,4 +1,3 @@
-# Classe pour représenter une violation et faciliter la manipulation des données
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 from dataclasses import dataclass
@@ -6,6 +5,7 @@ from datetime import datetime
 
 @dataclass(slots=True)
 class Violation:
+    """Classe pour représenter une violation et faciliter la manipulation des données"""
     id_poursuite: int
     business_id: int
     date_violation: str

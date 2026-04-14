@@ -1,3 +1,6 @@
+/**
+ * Helper pour déterminer les classes Tailwind selon validation
+ */
 function getStatusViolationColor(status) {
   const normalizedStatus = (status || "").toLowerCase();
 
@@ -12,6 +15,7 @@ function getStatusViolationColor(status) {
   }
 }
 
+/** Initialise les interactions de recherche de la page d'accueil. */
 $(document).ready(function () {
   $("#search-date-tab").hide();
   $("#search-resto-section").hide();

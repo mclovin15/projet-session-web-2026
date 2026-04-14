@@ -1,3 +1,7 @@
+/**
+ * Centralise l'affichage et la fermeture des messages de feedback
+ * pour les formulaires et actions asynchrones du projet.
+ */
 (function ($) {
   const FEEDBACK_STYLES = {
     success: {
@@ -25,6 +29,7 @@
     .map((style) => style.icon)
     .join(" ");
 
+  /** Résout l'élément cible à partir d'un sélecteur ou d'un objet jQuery. */
   function getMessageElement(target) {
     if (target && target.jquery) {
       return target.first();
@@ -33,6 +38,7 @@
     return $(target).first();
   }
 
+  /** Annule un auto-hide précédent pour éviter les fermetures concurrentes. */
   function clearHideTimer($message) {
     const timerId = $message.data("feedbackHideTimer");
 
@@ -42,6 +48,7 @@
     }
   }
 
+  /** Applique le style visuel associé au type de message demandé. */
   function applyStyle($message, type) {
     const style = FEEDBACK_STYLES[type] || FEEDBACK_STYLES.info;
     const $icon = $message.find(".feedback-message-icon");

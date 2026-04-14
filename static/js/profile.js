@@ -1,3 +1,7 @@
+/**
+ * Gère la modification du profil utilisateur:
+ * validation d'avatar, aperçu local et envoi du PATCH profil.
+ */
 (function () {
   const MAX_AVATAR_SIZE_BYTES = 1300000;
   const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png"];
@@ -18,6 +22,7 @@
   const prenomInput = document.getElementById("edit-profile-prenom");
   const nomInput = document.getElementById("edit-profile-nom");
 
+  /** Lit un avatar local et le convertit en Data URL pour l'API. */
   async function readFileAsDataUrl(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -28,6 +33,7 @@
     });
   }
 
+  /** Met à jour les aperçus d'avatar de la page de profil. */
   function updateAvatarPreview(src) {
     if (avatarPreview) {
       avatarPreview.src = src;
@@ -37,6 +43,7 @@
     }
   }
 
+  /** Vérifie que le fichier d'avatar respecte les types autorisés. */
   function isSupportedAvatarFile(file) {
     return Boolean(file && ALLOWED_AVATAR_TYPES.includes(file.type));
   }

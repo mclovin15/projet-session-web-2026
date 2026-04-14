@@ -1,4 +1,3 @@
-# Classe pour représenter un établissement et ses violations
 # Projet Session - INF5190 - 2026
 # Yoan Desjardins - DESY77040109
 from dataclasses import dataclass, field
@@ -11,6 +10,7 @@ except ImportError:
 
 @dataclass(slots=True)
 class Etablissement:
+    """Classe pour représenter un établissement et ses violations associées"""
     nom: str
     business_id: int
     adresse: str
