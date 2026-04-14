@@ -835,7 +835,6 @@ scheduler.add_job(
     replace_existing=True,
     misfire_grace_time=3600,  # autoriser une execution jusqu'a 1h apres
 )
-# TODO: revoir a la remise si on l'enleve
 # Evite de lancer deux schedulers avec le reloader de Flask en debug
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
     scheduler.start()

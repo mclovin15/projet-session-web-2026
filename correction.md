@@ -3,7 +3,7 @@
 ### Yoan Desjardins (DESY77040109)
 
 #### Doc des services [API](http://127.0.0.1:5000/doc)
-
+#### Voir le README.md
 ---
 
 - **A1** : On peut tester cette fonctionnalité en exécutant la commande :  ```python3 import_data.py```.
@@ -17,5 +17,7 @@
 - **C3** : On peut tester cette fonctionnalité en utilisant cette [URL](http://127.0.0.1:5000/violations_par_etablissement.csv).
 - **D1** : On peut tester cette fonctionnalité en utilisant la page des plaintes et en cliquant le bouton "Nouvelle Plainte" ou avec cette [URL](http://127.0.0.1:5000/demande-inspection). Il faut ensuite remplir le formulaire.
 - **D2** : Il faut tout d'abord avoir des plaintes existantes et on peut supprimer une plainte en cliquant sur le bouton supprimer à cette [URL](http://127.0.0.1:5000/inspections).
-- **E1** : On peut tester ce service API avec cette [URL](http://127.0.0.1:5000/user)  (POST) avec Postman ou autres. Pour connaître la requête attendu consulter la [doc](http://127.0.0.1:5000/doc/api.html#user_post). 
-- **E2**: On peut tester la connexion avec cette [URL](http://127.0.0.1:5000/login). Une fois connecté on a accès au page de suivis et à la page de modification de profil. Pour changer la liste de suivis on vas à cette [URL](http://127.0.0.1:5000/user_watch_list). Finalement, pour changer des informations sur son profil comme l'image, son nom et prénom on peut aller [ici](http://127.0.0.1:5000/edit_profile).
+- **E1** : On peut tester ce service API avec cette [URL](http://127.0.0.1:5000/user)  (POST) avec Postman ou autres. Pour connaître la requête attendu consulter la [doc](http://127.0.0.1:5000/doc/api.html#user_post).
+- **E2**: Pour se créer un compte au peut aller [ici](http://127.0.0.1:5000/signin). On peut tester la connexion avec cette [URL](http://127.0.0.1:5000/login). Une fois connecté on a accès au page de suivis et à la page de modification de profil. Pour changer la liste de suivis on vas à cette [URL](http://127.0.0.1:5000/user_watch_list). Finalement, pour changer des informations sur son profil comme l'image, son nom et prénom on peut aller [ici](http://127.0.0.1:5000/edit_profile).
+
+# Total : 125 XP
